@@ -15,6 +15,10 @@
 		10F0F5412B8BE8DB00E3A8B0 /* KairosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5402B8BE8DB00E3A8B0 /* KairosTests.swift */; };
 		10F0F54B2B8BE8DB00E3A8B0 /* KairosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F54A2B8BE8DB00E3A8B0 /* KairosUITests.swift */; };
 		10F0F54D2B8BE8DB00E3A8B0 /* KairosUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F54C2B8BE8DB00E3A8B0 /* KairosUITestsLaunchTests.swift */; };
+		10F0F55D2B8BF9D200E3A8B0 /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */; };
+		10F0F55E2B8BF9D200E3A8B0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */; };
+		10F0F55F2B8BF9D200E3A8B0 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */; };
+		10F0F5612B8BFADE00E3A8B0 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +50,10 @@
 		10F0F5462B8BE8DB00E3A8B0 /* KairosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KairosUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F0F54A2B8BE8DB00E3A8B0 /* KairosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosUITests.swift; sourceTree = "<group>"; };
 		10F0F54C2B8BE8DB00E3A8B0 /* KairosUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
+		10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
+		10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,8 +104,12 @@
 		10F0F52C2B8BE8D800E3A8B0 /* Kairos */ = {
 			isa = PBXGroup;
 			children = (
-				10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */,
 				10F0F52F2B8BE8D800E3A8B0 /* ContentView.swift */,
+				10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */,
+				10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */,
+				10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */,
+				10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */,
+				10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */,
 				10F0F5312B8BE8D800E3A8B0 /* Item.swift */,
 				10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */,
 				10F0F5352B8BE8DA00E3A8B0 /* Preview Content */,
@@ -218,6 +230,9 @@
 				Base,
 			);
 			mainGroup = 10F0F5212B8BE8D800E3A8B0;
+			packageReferences = (
+				10F0F5592B8BF91100E3A8B0 /* XCRemoteSwiftPackageReference "swift-nio" */,
+			);
 			productRefGroup = 10F0F52B2B8BE8D800E3A8B0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -260,9 +275,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10F0F55F2B8BF9D200E3A8B0 /* EventManager.swift in Sources */,
+				10F0F55E2B8BF9D200E3A8B0 /* CalendarView.swift in Sources */,
 				10F0F5302B8BE8D800E3A8B0 /* ContentView.swift in Sources */,
 				10F0F5322B8BE8D800E3A8B0 /* Item.swift in Sources */,
 				10F0F52E2B8BE8D800E3A8B0 /* KairosApp.swift in Sources */,
+				10F0F55D2B8BF9D200E3A8B0 /* EventView.swift in Sources */,
+				10F0F5612B8BFADE00E3A8B0 /* CalendarViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -586,6 +605,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		10F0F5592B8BF91100E3A8B0 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.63.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 10F0F5222B8BE8D800E3A8B0 /* Project object */;
 }

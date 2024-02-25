@@ -1,25 +1,27 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showingEventDetail = false
+
+    // Create an instance of CalendarViewModel
+    var calendarViewModel = CalendarViewModel()
+
     var body: some View {
         NavigationView {
-            CalendarView()
+            CalendarView(viewModel: calendarViewModel, showingEventDetail: $showingEventDetail)
                 .navigationTitle("My Calendar")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
-                            // Action to add a new event
+                            showingEventDetail.toggle()
                         }) {
                             Image(systemName: "plus")
                         }
                     }
                 }
+                .sheet(isPresented: $showingEventDetail) {
+                    EventDetailView()
+                }
         }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
     }
 }
