@@ -24,11 +24,12 @@ struct DayView: View {
         Text(day.number)
             .font(.body)
             .padding(8)
+            .frame(width: 40, height: 40) // Ensures static size for all circles
             .foregroundColor(day.number.isEmpty ? .clear : .black)
-            .background(isToday ? Color.red : (day.isSelected ? Color.yellow : Color(white: 0.95)))
+            .background(isToday ? Color.red : Color(white: 0.95))
             .clipShape(Circle())
             .overlay(
-                day.hasEvents ? Circle().stroke(Color.gray, lineWidth: 2) : nil
+                Circle().stroke(Color.gray, lineWidth: isToday ? 2 : 0) // Highlight only today
             )
             .accessibilityLabel(Text("Day \(day.number)"))
     }

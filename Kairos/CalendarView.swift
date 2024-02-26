@@ -12,7 +12,7 @@ struct CalendarView: View {
             Text(viewModel.currentMonth)
                 .font(.custom("AmericanTypewriter", size: 24)) // Choose a font that suits your newspaper style
                 .padding()
-
+            
             // Day of the week headers
             HStack {
                 ForEach(Array(daysOfWeek.enumerated()), id: \.offset) { index, day in
@@ -21,9 +21,9 @@ struct CalendarView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-
+            
             // Display the grid of days
-            LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
                 ForEach(viewModel.days) { day in
                     DayView(day: day, isToday: viewModel.isToday(day: day))
                         .onTapGesture {
