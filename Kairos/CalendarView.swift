@@ -3,16 +3,12 @@ import SwiftUI
 struct CalendarView: View {
     @ObservedObject var viewModel: CalendarViewModel
     @Binding var showingEventDetail: Bool
+    @State private var selectedDay: Day?
 
     let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
 
     var body: some View {
         VStack {
-            // Displaying the month and year in a newspaper-esque font
-            Text(viewModel.currentMonth)
-                .font(.custom("AmericanTypewriter", size: 24)) // Choose a font that suits your newspaper style
-                .padding()
-            
             // Day of the week headers
             HStack {
                 ForEach(Array(daysOfWeek.enumerated()), id: \.offset) { index, day in
@@ -21,17 +17,21 @@ struct CalendarView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            
+
             // Display the grid of days
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
                 ForEach(viewModel.days) { day in
                     DayView(day: day, isToday: viewModel.isToday(day: day))
                         .onTapGesture {
-                            viewModel.selectDay(day)
-                            showingEventDetail.toggle()
+                            selectedDay = day
+                            showingEventDetail = true
                         }
                 }
             }
+        }
+        .sheet(isPresented: $showingEventDetail) {
+            // Pass required data to EventDetailView, for now we assume it's for a new event
+            EventDetailView()
         }
         .gesture(
             DragGesture(minimumDistance: 30)
@@ -41,9 +41,9 @@ struct CalendarView: View {
     }
 
     private func handleSwipe(translation: CGFloat) {
-        if translation < 0 {
+        if translation > 0 {
             viewModel.goToPreviousMonth()
-        } else if translation > 0 {
+        } else if translation < 0 {
             viewModel.goToNextMonth()
         }
     }
