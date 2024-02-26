@@ -41,9 +41,9 @@ struct CalendarView: View {
     }
 
     private func handleSwipe(translation: CGFloat) {
-        if translation > 0 {
+        if translation < 0 {
             viewModel.goToPreviousMonth()
-        } else if translation < 0 {
+        } else if translation > 0 {
             viewModel.goToNextMonth()
         }
     }
