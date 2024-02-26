@@ -13,17 +13,19 @@ struct Day: Identifiable, Equatable {
     let number: String
     var isSelected: Bool
     var hasEvents: Bool
+    var isToday: Bool // Adding the isToday property here
 }
 
 struct DayView: View {
     var day: Day
+    var isToday: Bool
 
     var body: some View {
         Text(day.number)
             .font(.body)
             .padding(8)
             .foregroundColor(day.number.isEmpty ? .clear : .black)
-            .background(day.isSelected ? Color.yellow : Color(white: 0.95))
+            .background(isToday ? Color.red : (day.isSelected ? Color.yellow : Color(white: 0.95)))
             .clipShape(Circle())
             .overlay(
                 day.hasEvents ? Circle().stroke(Color.gray, lineWidth: 2) : nil
@@ -35,38 +37,45 @@ struct DayView: View {
 class CalendarViewModel: ObservableObject {
     @Published var currentMonth: String = ""
     @Published var days: [Day] = []
-    
+
     private var currentDate = Date()
     private let calendar = Calendar.current
-    
+
     init() {
         calculateMonth()
     }
-    
+
     func calculateMonth() {
-        let month = calendar.component(.month, from: currentDate)
-        let year = calendar.component(.year, from: currentDate)
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMMM yyyy"
-        currentMonth = dateFormatter.string(from: currentDate)
-        
-        // Calculate the number of days and the starting day of the week for the month
-        var components = DateComponents(year: year, month: month)
-        components.day = 1
+        let components = calendar.dateComponents([.year, .month], from: currentDate)
         let firstDayOfMonth = calendar.date(from: components)!
         let range = calendar.range(of: .day, in: .month, for: firstDayOfMonth)!
         let numDays = range.count
-        let startingWeekday = calendar.component(.weekday, from: firstDayOfMonth) - 1 // Adjusted for zero index
-        
-        // Generate Day objects
-        days = (1..<(numDays + startingWeekday)).map { day in
-            // Handle days of the previous month shown in the current calendar view
+        let startingWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMMM yyyy"
+        currentMonth = dateFormatter.string(from: currentDate)
+
+        // Initialize days with correct capacity to avoid reallocation
+        days.removeAll()
+        days.reserveCapacity(numDays + startingWeekday - 1)
+
+        // Fill in the days array
+        for day in 1..<(numDays + startingWeekday) {
             if day < startingWeekday {
-                return Day(number: "", isSelected: false, hasEvents: false)
+                days.append(Day(number: "", isSelected: false, hasEvents: false, isToday: false))
+            } else {
+                let dayNumber = day - startingWeekday + 1
+                let dateComponents = DateComponents(year: components.year, month: components.month, day: dayNumber)
+                let dayDate = calendar.date(from: dateComponents)!
+                let isToday = calendar.isDateInToday(dayDate)
+                days.append(Day(number: "\(dayNumber)", isSelected: false, hasEvents: false, isToday: isToday))
             }
-            // Adjust day number for zero-based index offset
-            return Day(number: "\(day - startingWeekday + 1)", isSelected: false, hasEvents: false)
         }
+    }
+
+    func isToday(day: Day) -> Bool {
+        return day.isToday
     }
     
     func goToNextMonth() {
@@ -79,13 +88,13 @@ class CalendarViewModel: ObservableObject {
         calculateMonth()
     }
     
-    func selectDay(_ day: Day) {
-        // Logic to mark a day as selected and load events for that day
-        // This could update `days` array or fetch event details to show in another view
-    }
-    
     func goToCurrentMonth() {
         currentDate = Date()
         calculateMonth()
+    }
+    
+    func selectDay(_ day: Day) {
+        // Logic to mark a day as selected and load events for that day
+        // This could update `days` array or fetch event details to show in another view
     }
 }
