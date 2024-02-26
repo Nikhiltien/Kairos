@@ -104,12 +104,12 @@
 		10F0F52C2B8BE8D800E3A8B0 /* Kairos */ = {
 			isa = PBXGroup;
 			children = (
+				10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */,
 				10F0F52F2B8BE8D800E3A8B0 /* ContentView.swift */,
 				10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */,
 				10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */,
 				10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */,
 				10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */,
-				10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */,
 				10F0F5312B8BE8D800E3A8B0 /* Item.swift */,
 				10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */,
 				10F0F5352B8BE8DA00E3A8B0 /* Preview Content */,

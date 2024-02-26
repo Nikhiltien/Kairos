@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct Day: Identifiable {
+struct Day: Identifiable, Equatable {
     let id = UUID()
     let number: String
     var isSelected: Bool
@@ -20,12 +20,15 @@ struct DayView: View {
 
     var body: some View {
         Text(day.number)
+            .font(.body)
             .padding(8)
-            .background(day.isSelected ? Color.blue : Color.clear)
+            .foregroundColor(day.number.isEmpty ? .clear : .black)
+            .background(day.isSelected ? Color.yellow : Color(white: 0.95))
             .clipShape(Circle())
             .overlay(
-                day.hasEvents ? Circle().stroke(Color.red, lineWidth: 2) : nil
+                day.hasEvents ? Circle().stroke(Color.gray, lineWidth: 2) : nil
             )
+            .accessibilityLabel(Text("Day \(day.number)"))
     }
 }
 
@@ -79,5 +82,10 @@ class CalendarViewModel: ObservableObject {
     func selectDay(_ day: Day) {
         // Logic to mark a day as selected and load events for that day
         // This could update `days` array or fetch event details to show in another view
+    }
+    
+    func goToCurrentMonth() {
+        currentDate = Date()
+        calculateMonth()
     }
 }
