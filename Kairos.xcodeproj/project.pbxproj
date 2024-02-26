@@ -19,6 +19,7 @@
 		10F0F55E2B8BF9D200E3A8B0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */; };
 		10F0F55F2B8BF9D200E3A8B0 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */; };
 		10F0F5612B8BFADE00E3A8B0 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */; };
+		10F0F5652B8C840800E3A8B0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5642B8C840800E3A8B0 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
 		10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
+		10F0F5642B8C840800E3A8B0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */,
 				10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */,
 				10F0F5312B8BE8D800E3A8B0 /* Item.swift */,
+				10F0F5642B8C840800E3A8B0 /* SettingsView.swift */,
 				10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */,
 				10F0F5352B8BE8DA00E3A8B0 /* Preview Content */,
 			);
@@ -276,6 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				10F0F55F2B8BF9D200E3A8B0 /* EventManager.swift in Sources */,
+				10F0F5652B8C840800E3A8B0 /* SettingsView.swift in Sources */,
 				10F0F55E2B8BF9D200E3A8B0 /* CalendarView.swift in Sources */,
 				10F0F5302B8BE8D800E3A8B0 /* ContentView.swift in Sources */,
 				10F0F5322B8BE8D800E3A8B0 /* Item.swift in Sources */,

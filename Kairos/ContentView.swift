@@ -1,12 +1,20 @@
+//
+//  ContentView.swift
+//  Kairos
+//
+//  Created by Nikhil Tien on 2/25/24.
+//
+
 import SwiftUI
 
 struct ContentView: View {
     @State private var showingEventDetail = false
     @State private var showingSettings = false
-    @State private var selectedCalendarView = "M" // Default view is Month
+    @State private var selectedCalendarView = CalendarViewOption.month
+    @State private var selectedDay: Day? = nil
     let calendarViewModel = CalendarViewModel()
+    let buttonColor = Color(red: 250/255, green: 249/255, blue: 237/255)
 
-    // Enum to manage calendar views more robustly
     enum CalendarViewOption: String, CaseIterable {
         case day = "D"
         case week = "W"
@@ -21,57 +29,80 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
+                // CalendarViewMode bar
                 Picker("View", selection: $selectedCalendarView) {
                     ForEach(CalendarViewOption.allCases, id: \.self) { option in
-                        Text(option.title).tag(option.title)
+                        Text(option.title).tag(option)
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
+                .background(buttonColor)
+                .cornerRadius(8)
 
-                // Dynamically switch views based on the Picker's selection
+                // Display content based on the selected view
                 Group {
                     switch selectedCalendarView {
-//                    case CalendarViewOption.day.title:
-//                        DayView() // Placeholder - Implement your DayView
-                    case CalendarViewOption.week.title:
-                        WeekView() // Placeholder - Implement your WeekView
-                    case CalendarViewOption.month.title:
-                        MonthView(viewModel: calendarViewModel, showingEventDetail: $showingEventDetail)
-                    case CalendarViewOption.schedule.title:
-                        ScheduleView() // Placeholder - Implement your ScheduleView
-                    default:
-                        MonthView(viewModel: calendarViewModel, showingEventDetail: $showingEventDetail)
+                    case .day:
+                        DayViewWrapper()
+                    case .week:
+                        WeekView()
+                    case .month:
+                        MonthView(viewModel: calendarViewModel, showingEventDetail: $showingEventDetail, selectedDay: $selectedDay)
+                    case .schedule:
+                        ScheduleView()
                     }
                 }
                 .transition(.slide)
+
+                // Display events or "No Events" text
+                ScrollView {
+                    Group {
+                        if let day = selectedDay, !day.events.isEmpty {
+                            ForEach(day.events, id: \.self) { event in
+                                EventRow(event: event) // Assuming this is your custom view for events.
+                            }
+                        } else {
+                            Text("No Events")
+                                .padding()
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .top) // Ensuring content aligns at the top.
+                }
             }
             .navigationBarItems(
                 leading: Button(action: {
                     print("Search tapped")
                 }) {
                     Image(systemName: "magnifyingglass")
+                        .foregroundColor(buttonColor)
                 },
                 trailing: HStack {
                     Button(action: {
                         calendarViewModel.goToCurrentMonth()
                     }) {
                         Image(systemName: "house.fill")
+                            .foregroundColor(buttonColor)
                     }
                     
                     Button(action: {
                         showingSettings.toggle()
                     }) {
                         Image(systemName: "gear")
+                            .foregroundColor(buttonColor)
                     }
                 }
             )
             .sheet(isPresented: $showingEventDetail) {
-                EventDetailView() // Placeholder - Implement your detailed event view
+                if let selectedDay = selectedDay {
+                    EventView()
+                } else {
+                    Text("No event details available.")
+                }
             }
-//            .sheet(isPresented: $showingSettings) {
-//                SettingsView() // Placeholder - Implement your settings view
-//            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+            }
         }
         .overlay(
             VStack {
@@ -79,13 +110,13 @@ struct ContentView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        showingEventDetail = true
+                        showingEventDetail.toggle()
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.largeTitle)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.white)
                             .padding()
-                            .background(Color.white)
+                            .background(buttonColor)
                             .clipShape(Circle())
                             .shadow(radius: 3)
                             .padding()
@@ -96,32 +127,36 @@ struct ContentView: View {
     }
 }
 
-// Define these view placeholders as separate structs if they are not already implemented.
+struct DayViewWrapper: View {
+    var body: some View {
+        Text("Day View Placeholder")
+    }
+}
+
 struct WeekView: View {
     var body: some View {
-        Text("Week View Placeholder") // Implement your WeekView content
+        Text("Week View Placeholder")
     }
 }
 
 struct MonthView: View {
     @ObservedObject var viewModel: CalendarViewModel
     @Binding var showingEventDetail: Bool
+    @Binding var selectedDay: Day?
 
     var body: some View {
         VStack {
             Text(viewModel.currentMonth)
-                .font(.custom("AmericanTypewriter", size: 30)) // Larger font size for month and year
+                .font(.custom("AmericanTypewriter", size: 30))
                 .padding()
 
-            CalendarView(viewModel: viewModel, showingEventDetail: $showingEventDetail) // Assuming CalendarView is your detailed month view
+            CalendarView(viewModel: viewModel, showingEventDetail: $showingEventDetail, selectedDay: $selectedDay)
         }
     }
 }
 
 struct ScheduleView: View {
     var body: some View {
-        Text("Schedule View Placeholder") // Implement your ScheduleView content
+        Text("Schedule View Placeholder")
     }
 }
-
-// Assume EventDetailView and SettingsView are defined elsewhere or replace with actual implementation.
