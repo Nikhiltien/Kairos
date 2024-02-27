@@ -7,19 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10D5FC6D2B8D8A0A002CBE93 /* AppleCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D5FC6C2B8D8A0A002CBE93 /* AppleCalendar.swift */; };
+		10D5FC702B8D8ACD002CBE93 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10D5FC6F2B8D8ACD002CBE93 /* EventKit.framework */; };
+		10D5FC722B8D8AD5002CBE93 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10D5FC712B8D8AD5002CBE93 /* EventKitUI.framework */; };
+		10D5FC742B8D8E44002CBE93 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D5FC732B8D8E44002CBE93 /* OnboardingView.swift */; };
+		10D5FC782B8D9ECE002CBE93 /* MrDeHaviland-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 10D5FC772B8D9ECE002CBE93 /* MrDeHaviland-Regular.ttf */; };
+		10D5FC9A2B8DB661002CBE93 /* KairosCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D5FC992B8DB661002CBE93 /* KairosCalendar.swift */; };
+		10D5FC9C2B8DB744002CBE93 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10D5FC9B2B8DB744002CBE93 /* ContentView.swift */; };
 		10F0F52E2B8BE8D800E3A8B0 /* KairosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */; };
-		10F0F5302B8BE8D800E3A8B0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F52F2B8BE8D800E3A8B0 /* ContentView.swift */; };
 		10F0F5322B8BE8D800E3A8B0 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5312B8BE8D800E3A8B0 /* Item.swift */; };
 		10F0F5342B8BE8DA00E3A8B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */; };
 		10F0F5372B8BE8DA00E3A8B0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10F0F5362B8BE8DA00E3A8B0 /* Preview Assets.xcassets */; };
 		10F0F5412B8BE8DB00E3A8B0 /* KairosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5402B8BE8DB00E3A8B0 /* KairosTests.swift */; };
 		10F0F54B2B8BE8DB00E3A8B0 /* KairosUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F54A2B8BE8DB00E3A8B0 /* KairosUITests.swift */; };
 		10F0F54D2B8BE8DB00E3A8B0 /* KairosUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F54C2B8BE8DB00E3A8B0 /* KairosUITestsLaunchTests.swift */; };
-		10F0F55D2B8BF9D200E3A8B0 /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */; };
-		10F0F55E2B8BF9D200E3A8B0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */; };
-		10F0F55F2B8BF9D200E3A8B0 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */; };
-		10F0F5612B8BFADE00E3A8B0 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */; };
-		10F0F5652B8C840800E3A8B0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5642B8C840800E3A8B0 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,9 +41,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		10D5FC6C2B8D8A0A002CBE93 /* AppleCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleCalendar.swift; sourceTree = "<group>"; };
+		10D5FC6F2B8D8ACD002CBE93 /* EventKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKit.framework; path = System/Library/Frameworks/EventKit.framework; sourceTree = SDKROOT; };
+		10D5FC712B8D8AD5002CBE93 /* EventKitUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EventKitUI.framework; path = System/Library/Frameworks/EventKitUI.framework; sourceTree = SDKROOT; };
+		10D5FC732B8D8E44002CBE93 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		10D5FC772B8D9ECE002CBE93 /* MrDeHaviland-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MrDeHaviland-Regular.ttf"; sourceTree = "<group>"; };
+		10D5FC992B8DB661002CBE93 /* KairosCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosCalendar.swift; sourceTree = "<group>"; };
+		10D5FC9B2B8DB744002CBE93 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		10F0F52A2B8BE8D800E3A8B0 /* Kairos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kairos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosApp.swift; sourceTree = "<group>"; };
-		10F0F52F2B8BE8D800E3A8B0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		10F0F5312B8BE8D800E3A8B0 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		10F0F5362B8BE8DA00E3A8B0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -51,11 +58,6 @@
 		10F0F5462B8BE8DB00E3A8B0 /* KairosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KairosUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F0F54A2B8BE8DB00E3A8B0 /* KairosUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosUITests.swift; sourceTree = "<group>"; };
 		10F0F54C2B8BE8DB00E3A8B0 /* KairosUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
-		10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
-		10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
-		10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
-		10F0F5642B8C840800E3A8B0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10D5FC722B8D8AD5002CBE93 /* EventKitUI.framework in Frameworks */,
+				10D5FC702B8D8ACD002CBE93 /* EventKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +87,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		10D5FC6E2B8D8ACC002CBE93 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				10D5FC712B8D8AD5002CBE93 /* EventKitUI.framework */,
+				10D5FC6F2B8D8ACD002CBE93 /* EventKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		10F0F5212B8BE8D800E3A8B0 = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +103,7 @@
 				10F0F53F2B8BE8DB00E3A8B0 /* KairosTests */,
 				10F0F5492B8BE8DB00E3A8B0 /* KairosUITests */,
 				10F0F52B2B8BE8D800E3A8B0 /* Products */,
+				10D5FC6E2B8D8ACC002CBE93 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -107,13 +121,12 @@
 			isa = PBXGroup;
 			children = (
 				10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */,
-				10F0F52F2B8BE8D800E3A8B0 /* ContentView.swift */,
-				10F0F55B2B8BF9D200E3A8B0 /* CalendarView.swift */,
-				10F0F5602B8BFADE00E3A8B0 /* CalendarViewModel.swift */,
-				10F0F55C2B8BF9D200E3A8B0 /* EventManager.swift */,
-				10F0F55A2B8BF9D200E3A8B0 /* EventView.swift */,
+				10D5FC9B2B8DB744002CBE93 /* ContentView.swift */,
+				10D5FC732B8D8E44002CBE93 /* OnboardingView.swift */,
+				10D5FC6C2B8D8A0A002CBE93 /* AppleCalendar.swift */,
+				10D5FC992B8DB661002CBE93 /* KairosCalendar.swift */,
+				10D5FC772B8D9ECE002CBE93 /* MrDeHaviland-Regular.ttf */,
 				10F0F5312B8BE8D800E3A8B0 /* Item.swift */,
-				10F0F5642B8C840800E3A8B0 /* SettingsView.swift */,
 				10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */,
 				10F0F5352B8BE8DA00E3A8B0 /* Preview Content */,
 			);
@@ -235,6 +248,7 @@
 			mainGroup = 10F0F5212B8BE8D800E3A8B0;
 			packageReferences = (
 				10F0F5592B8BF91100E3A8B0 /* XCRemoteSwiftPackageReference "swift-nio" */,
+				10D5FC792B8DAB3F002CBE93 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 10F0F52B2B8BE8D800E3A8B0 /* Products */;
 			projectDirPath = "";
@@ -254,6 +268,7 @@
 			files = (
 				10F0F5372B8BE8DA00E3A8B0 /* Preview Assets.xcassets in Resources */,
 				10F0F5342B8BE8DA00E3A8B0 /* Assets.xcassets in Resources */,
+				10D5FC782B8D9ECE002CBE93 /* MrDeHaviland-Regular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,14 +293,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10F0F55F2B8BF9D200E3A8B0 /* EventManager.swift in Sources */,
-				10F0F5652B8C840800E3A8B0 /* SettingsView.swift in Sources */,
-				10F0F55E2B8BF9D200E3A8B0 /* CalendarView.swift in Sources */,
-				10F0F5302B8BE8D800E3A8B0 /* ContentView.swift in Sources */,
+				10D5FC742B8D8E44002CBE93 /* OnboardingView.swift in Sources */,
 				10F0F5322B8BE8D800E3A8B0 /* Item.swift in Sources */,
+				10D5FC9C2B8DB744002CBE93 /* ContentView.swift in Sources */,
 				10F0F52E2B8BE8D800E3A8B0 /* KairosApp.swift in Sources */,
-				10F0F55D2B8BF9D200E3A8B0 /* EventView.swift in Sources */,
-				10F0F5612B8BFADE00E3A8B0 /* CalendarViewModel.swift in Sources */,
+				10D5FC9A2B8DB661002CBE93 /* KairosCalendar.swift in Sources */,
+				10D5FC6D2B8D8A0A002CBE93 /* AppleCalendar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,9 +465,11 @@
 				DEVELOPMENT_TEAM = 66S8Y28DU4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Kairos/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
@@ -482,9 +497,11 @@
 				DEVELOPMENT_TEAM = 66S8Y28DU4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Kairos/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
@@ -615,6 +632,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		10D5FC792B8DAB3F002CBE93 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 		10F0F5592B8BF91100E3A8B0 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-nio.git";

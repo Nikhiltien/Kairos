@@ -6,3 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
+
+struct ContentView: View {
+    @State private var currentDate = Date()
+
+    var body: some View {
+        KairosCalendar(currentDate: $currentDate)
+    }
+}
