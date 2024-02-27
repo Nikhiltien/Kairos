@@ -88,4 +88,38 @@ class CalendarManager {
             completion(false, error)
         }
     }
+    
+    func generateDaysInMonth(for currentDate: Date, completion: @escaping ([KairosCalendar.Day]) -> Void) {
+        let calendar = Calendar.current
+        guard let range = calendar.range(of: .day, in: .month, for: currentDate),
+              let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: currentDate)) else {
+            completion([])
+            return
+        }
+        
+        let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth)!
+        
+        // Fetch events within the month range.
+        fetchEvents(from: startOfMonth, to: endOfMonth) { events, error in
+            guard error == nil, let events = events else {
+                completion([])
+                return
+            }
+            
+            let days: [KairosCalendar.Day] = range.compactMap { day -> KairosCalendar.Day? in
+                let dateComponents = DateComponents(year: calendar.component(.year, from: currentDate), month: calendar.component(.month, from: currentDate), day: day)
+                
+                guard let date = calendar.date(from: dateComponents) else { return nil }
+                
+                // Check if there's an event on this day.
+                let hasEvent = events.contains(where: { event in
+                    calendar.isDate(event.startDate, inSameDayAs: date)
+                })
+                
+                return KairosCalendar.Day(number: String(day), hasEvent: hasEvent)
+            }
+            
+            completion(days)
+        }
+    }
 }

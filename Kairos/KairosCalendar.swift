@@ -16,52 +16,22 @@ struct KairosCalendar: View {
 
     var body: some View {
         VStack {
-            HStack {
-                Button(action: {
-                    self.changeMonth(by: -1)
-                }) {
-                    Image(systemName: "arrow.left")
-                }
-
-                Spacer()
-
-                Text(monthYearString(from: currentDate))
-                    .font(.title)
-
-                Spacer()
-
-                Button(action: {
-                    self.changeMonth(by: 1)
-                }) {
-                    Image(systemName: "arrow.right")
+            CalendarHeaderView(currentDate: $currentDate, changeMonth: changeMonth)
+            
+            DayOfWeekHeader()
+            
+            LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
+                ForEach(days) { day in
+                    DayView(day: day)
                 }
             }
             .padding()
-
-            LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
-                ForEach(days, id: \.self.number) { day in
-                    Text(day.number)
-                        .padding()
-                        .background(day.hasEvent ? Color.green : Color.clear)
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.black, lineWidth: 1)
-                        )
-                }
-            }
             .onAppear {
                 self.updateDays()
             }
         }
     }
-
-    private func monthYearString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM, yyyy"
-        return formatter.string(from: date)
-    }
-
+    
     private func changeMonth(by increment: Int) {
         if let adjustedDate = calendar.date(byAdding: .month, value: increment, to: currentDate) {
             currentDate = adjustedDate
@@ -70,24 +40,8 @@ struct KairosCalendar: View {
     }
 
     private func updateDays() {
-        let components = calendar.dateComponents([.year, .month], from: currentDate)
-        guard let startOfMonth = calendar.date(from: components),
-              let range = calendar.range(of: .day, in: .month, for: startOfMonth) else {
-            return
-        }
-        
-        let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth)!
-        calendarManager.fetchEvents(from: startOfMonth, to: endOfMonth) { events, error in
-            guard let events = events else { return }
-            
-            self.days = range.compactMap { day -> Day? in
-                let dayComponent = DateComponents(day: day - 1)
-                guard let date = self.calendar.date(byAdding: dayComponent, to: startOfMonth) else { return nil }
-                let dayEvents = events.filter { event in
-                    self.calendar.isDate(event.startDate, inSameDayAs: date)
-                }
-                return Day(number: String(day), hasEvent: !dayEvents.isEmpty)
-            }
+        calendarManager.generateDaysInMonth(for: currentDate) { days in
+            self.days = days
         }
     }
     
@@ -95,5 +49,80 @@ struct KairosCalendar: View {
         let id = UUID()
         let number: String
         let hasEvent: Bool
+    }
+}
+
+struct CalendarHeaderView: View {
+    @Binding var currentDate: Date
+    let changeMonth: (Int) -> Void
+    
+    var body: some View {
+        HStack {
+            Button(action: { changeMonth(-1) }) {
+                Image(systemName: "arrow.left")
+                    .foregroundColor(.primary)
+            }
+            .accessibilityLabel("Previous month")
+
+            Spacer()
+
+            Text(monthYearString(from: currentDate))
+                .font(.title)
+                .accessibilityLabel(monthYearAccessibilityString(from: currentDate))
+
+            Spacer()
+
+            Button(action: { changeMonth(1) }) {
+                Image(systemName: "arrow.right")
+                    .foregroundColor(.primary)
+            }
+            .accessibilityLabel("Next month")
+        }
+        .padding()
+    }
+    
+    private func monthYearString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: date)
+    }
+
+    private func monthYearAccessibilityString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+}
+
+struct DayOfWeekHeader: View {
+    private let daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    
+    var body: some View {
+        HStack {
+            ForEach(daysOfWeek, id: \.self) { day in
+                Text(day)
+                    .frame(maxWidth: .infinity)
+                    .font(.caption)
+            }
+        }
+    }
+}
+
+struct DayView: View {
+    let day: KairosCalendar.Day
+    
+    var body: some View {
+        Text(day.number)
+            .frame(minWidth: 32, minHeight: 32)  // Increase minimum dimensions as needed
+            .padding(8)  // Adjust padding to ensure text fits well within the circle
+            .background(day.hasEvent ? Color.green.opacity(0.3) : Color.clear)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(Color.primary, lineWidth: 1)
+            )
+            .accessibilityLabel(day.hasEvent ? "Event on \(day.number)" : day.number)
+            .font(.system(size: 16))  // You can adjust the font size if necessary
     }
 }
