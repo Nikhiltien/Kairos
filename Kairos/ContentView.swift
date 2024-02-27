@@ -10,8 +10,9 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var currentDate = Date()
+    let calendarManager = CalendarManager()
 
     var body: some View {
-        KairosCalendar(currentDate: $currentDate)
+        KairosCalendar(currentDate: $currentDate, calendarManager: calendarManager)
     }
 }
