@@ -42,6 +42,15 @@
 		10D5FCD32B8E62CC002CBE93 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCD22B8E62CC002CBE93 /* FirebaseStorage */; };
 		10D5FCD52B8E62CC002CBE93 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCD42B8E62CC002CBE93 /* FirebaseStorageCombine-Community */; };
 		10D5FCD72B8E6908002CBE93 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 10D5FCD62B8E6908002CBE93 /* GoogleService-Info.plist */; };
+		10D5FCDC2B8E82AC002CBE93 /* FirebaseAuthUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCDB2B8E82AC002CBE93 /* FirebaseAuthUI */; };
+		10D5FCDE2B8E82AC002CBE93 /* FirebaseDatabaseUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCDD2B8E82AC002CBE93 /* FirebaseDatabaseUI */; };
+		10D5FCE02B8E82AC002CBE93 /* FirebaseEmailAuthUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCDF2B8E82AC002CBE93 /* FirebaseEmailAuthUI */; };
+		10D5FCE22B8E82AC002CBE93 /* FirebaseFacebookAuthUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCE12B8E82AC002CBE93 /* FirebaseFacebookAuthUI */; };
+		10D5FCE42B8E83C4002CBE93 /* FirebaseOAuthUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCE32B8E83C4002CBE93 /* FirebaseOAuthUI */; };
+		10D5FCE62B8E848F002CBE93 /* FirebaseFirestoreUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCE52B8E848F002CBE93 /* FirebaseFirestoreUI */; };
+		10D5FCE82B8E848F002CBE93 /* FirebaseGoogleAuthUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCE72B8E848F002CBE93 /* FirebaseGoogleAuthUI */; };
+		10D5FCEA2B8E848F002CBE93 /* FirebasePhoneAuthUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCE92B8E848F002CBE93 /* FirebasePhoneAuthUI */; };
+		10D5FCEC2B8E848F002CBE93 /* FirebaseStorageUI in Frameworks */ = {isa = PBXBuildFile; productRef = 10D5FCEB2B8E848F002CBE93 /* FirebaseStorageUI */; };
 		10F0F52E2B8BE8D800E3A8B0 /* KairosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */; };
 		10F0F5322B8BE8D800E3A8B0 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5312B8BE8D800E3A8B0 /* Item.swift */; };
 		10F0F5342B8BE8DA00E3A8B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */; };
@@ -95,8 +104,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				10D5FCCB2B8E62CC002CBE93 /* FirebaseMessaging in Frameworks */,
+				10D5FCEC2B8E848F002CBE93 /* FirebaseStorageUI in Frameworks */,
 				10D5FC722B8D8AD5002CBE93 /* EventKitUI.framework in Frameworks */,
+				10D5FCE82B8E848F002CBE93 /* FirebaseGoogleAuthUI in Frameworks */,
 				10D5FCBD2B8E62CC002CBE93 /* FirebaseFirestoreSwift in Frameworks */,
+				10D5FCEA2B8E848F002CBE93 /* FirebasePhoneAuthUI in Frameworks */,
 				10D5FCA72B8E62CC002CBE93 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				10D5FCBF2B8E62CC002CBE93 /* FirebaseFunctions in Frameworks */,
 				10D5FC702B8D8ACD002CBE93 /* EventKit.framework in Frameworks */,
@@ -104,15 +116,20 @@
 				10D5FCAD2B8E62CC002CBE93 /* FirebaseAuth in Frameworks */,
 				10D5FCB72B8E62CC002CBE93 /* FirebaseDynamicLinks in Frameworks */,
 				10D5FCB12B8E62CC002CBE93 /* FirebaseCrashlytics in Frameworks */,
+				10D5FCDE2B8E82AC002CBE93 /* FirebaseDatabaseUI in Frameworks */,
 				10D5FCC92B8E62CC002CBE93 /* FirebaseMLModelDownloader in Frameworks */,
+				10D5FCE02B8E82AC002CBE93 /* FirebaseEmailAuthUI in Frameworks */,
+				10D5FCE22B8E82AC002CBE93 /* FirebaseFacebookAuthUI in Frameworks */,
 				10D5FCB52B8E62CC002CBE93 /* FirebaseDatabaseSwift in Frameworks */,
 				10D5FCB92B8E62CC002CBE93 /* FirebaseFirestore in Frameworks */,
 				10D5FCC72B8E62CC002CBE93 /* FirebaseInstallations in Frameworks */,
+				10D5FCE62B8E848F002CBE93 /* FirebaseFirestoreUI in Frameworks */,
 				10D5FCC12B8E62CC002CBE93 /* FirebaseFunctionsCombine-Community in Frameworks */,
 				10D5FCBB2B8E62CC002CBE93 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				10D5FCB32B8E62CC002CBE93 /* FirebaseDatabase in Frameworks */,
 				10D5FCCD2B8E62CC002CBE93 /* FirebasePerformance in Frameworks */,
 				10D5FCA92B8E62CC002CBE93 /* FirebaseAppCheck in Frameworks */,
+				10D5FCDC2B8E82AC002CBE93 /* FirebaseAuthUI in Frameworks */,
 				10D5FCA32B8E62CC002CBE93 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				10D5FCC52B8E62CC002CBE93 /* FirebaseInAppMessagingSwift-Beta in Frameworks */,
 				10D5FCD12B8E62CC002CBE93 /* FirebaseRemoteConfigSwift in Frameworks */,
@@ -123,6 +140,7 @@
 				10D5FCAF2B8E62CC002CBE93 /* FirebaseAuthCombine-Community in Frameworks */,
 				10D5FCD52B8E62CC002CBE93 /* FirebaseStorageCombine-Community in Frameworks */,
 				10D5FCC32B8E62CC002CBE93 /* FirebaseInAppMessaging-Beta in Frameworks */,
+				10D5FCE42B8E83C4002CBE93 /* FirebaseOAuthUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +277,15 @@
 				10D5FCD02B8E62CC002CBE93 /* FirebaseRemoteConfigSwift */,
 				10D5FCD22B8E62CC002CBE93 /* FirebaseStorage */,
 				10D5FCD42B8E62CC002CBE93 /* FirebaseStorageCombine-Community */,
+				10D5FCDB2B8E82AC002CBE93 /* FirebaseAuthUI */,
+				10D5FCDD2B8E82AC002CBE93 /* FirebaseDatabaseUI */,
+				10D5FCDF2B8E82AC002CBE93 /* FirebaseEmailAuthUI */,
+				10D5FCE12B8E82AC002CBE93 /* FirebaseFacebookAuthUI */,
+				10D5FCE32B8E83C4002CBE93 /* FirebaseOAuthUI */,
+				10D5FCE52B8E848F002CBE93 /* FirebaseFirestoreUI */,
+				10D5FCE72B8E848F002CBE93 /* FirebaseGoogleAuthUI */,
+				10D5FCE92B8E848F002CBE93 /* FirebasePhoneAuthUI */,
+				10D5FCEB2B8E848F002CBE93 /* FirebaseStorageUI */,
 			);
 			productName = Kairos;
 			productReference = 10F0F52A2B8BE8D800E3A8B0 /* Kairos.app */;
@@ -336,6 +363,7 @@
 				10F0F5592B8BF91100E3A8B0 /* XCRemoteSwiftPackageReference "swift-nio" */,
 				10D5FC792B8DAB3F002CBE93 /* XCRemoteSwiftPackageReference "swift-collections" */,
 				10D5FC9F2B8E62CC002CBE93 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */,
 			);
 			productRefGroup = 10F0F52B2B8BE8D800E3A8B0 /* Products */;
 			projectDirPath = "";
@@ -598,6 +626,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "Kairos-Technologies.Kairos";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -734,6 +763,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 10.21.0;
+			};
+		};
+		10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/FirebaseUI-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.1.0;
 			};
 		};
 		10F0F5592B8BF91100E3A8B0 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
@@ -881,6 +918,51 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 10D5FC9F2B8E62CC002CBE93 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseStorageCombine-Community";
+		};
+		10D5FCDB2B8E82AC002CBE93 /* FirebaseAuthUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseAuthUI;
+		};
+		10D5FCDD2B8E82AC002CBE93 /* FirebaseDatabaseUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseDatabaseUI;
+		};
+		10D5FCDF2B8E82AC002CBE93 /* FirebaseEmailAuthUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseEmailAuthUI;
+		};
+		10D5FCE12B8E82AC002CBE93 /* FirebaseFacebookAuthUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseFacebookAuthUI;
+		};
+		10D5FCE32B8E83C4002CBE93 /* FirebaseOAuthUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseOAuthUI;
+		};
+		10D5FCE52B8E848F002CBE93 /* FirebaseFirestoreUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseFirestoreUI;
+		};
+		10D5FCE72B8E848F002CBE93 /* FirebaseGoogleAuthUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseGoogleAuthUI;
+		};
+		10D5FCE92B8E848F002CBE93 /* FirebasePhoneAuthUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebasePhoneAuthUI;
+		};
+		10D5FCEB2B8E848F002CBE93 /* FirebaseStorageUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10D5FCDA2B8E8245002CBE93 /* XCRemoteSwiftPackageReference "FirebaseUI-iOS" */;
+			productName = FirebaseStorageUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
