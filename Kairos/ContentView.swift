@@ -13,6 +13,9 @@ struct ContentView: View {
     let calendarManager = CalendarManager()
 
     var body: some View {
-        KairosCalendar(currentDate: $currentDate, calendarManager: calendarManager)
+        let calendarViewModel = CalendarViewModel(currentDate: currentDate, calendarManager: calendarManager)
+        let eventViewModel = EventViewModel(calendarManager: calendarManager)
+        
+        KairosCalendar(calendarViewModel: calendarViewModel, eventViewModel: eventViewModel)
     }
 }

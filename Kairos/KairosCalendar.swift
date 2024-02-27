@@ -10,21 +10,17 @@ import SwiftUI
 import EventKit
 
 struct KairosCalendar: View {
-    @Binding var currentDate: Date
     @ObservedObject var calendarViewModel: CalendarViewModel
     @StateObject private var eventViewModel: EventViewModel
 
-    private let calendar = Calendar.current // Defining the calendar instance
-
-    init(currentDate: Binding<Date>, calendarManager: CalendarManager) {
-        self._currentDate = currentDate
-        self.calendarViewModel = CalendarViewModel(currentDate: currentDate.wrappedValue, calendarManager: calendarManager)
-        self._eventViewModel = StateObject(wrappedValue: EventViewModel(calendarManager: calendarManager))
+    init(calendarViewModel: CalendarViewModel, eventViewModel: EventViewModel) {
+        self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
+        self._eventViewModel = StateObject(wrappedValue: eventViewModel)
     }
 
     var body: some View {
         VStack {
-            CalendarHeaderView(currentDate: $currentDate, changeMonth: calendarViewModel.changeMonth)
+            CalendarHeaderView(calendarViewModel: calendarViewModel)
             DayOfWeekHeader()
 
             LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
@@ -41,30 +37,20 @@ struct KairosCalendar: View {
                 EventListView(eventViewModel: eventViewModel, date: selectedDate)
             }
         }
-        .onChange(of: currentDate) { _ in
-            calendarViewModel.changeMonth(by: 0)  // Triggers the days update
-        }
     }
 
     private func isSelected(day: KairosCalendar.Day) -> Bool {
-        guard let dayDate = getDate(for: day) else {
+        guard let dayDate = calendarViewModel.getDate(for: day) else {
             return false
         }
-        return calendar.isDate(dayDate, inSameDayAs: calendarViewModel.selectedDate ?? Date())
+        return Calendar.current.isDate(dayDate, inSameDayAs: calendarViewModel.selectedDate ?? Date())
     }
 
     private func selectDate(day: KairosCalendar.Day) {
-        if let newDate = getDate(for: day) {
-            calendarViewModel.selectedDate = newDate
+        calendarViewModel.selectDate(day: day)
+        if let newDate = calendarViewModel.getDate(for: day) {
             eventViewModel.loadEvents(for: newDate)
         }
-    }
-
-    private func getDate(for day: KairosCalendar.Day) -> Date? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy MM dd"
-        let dateString = "\(calendar.component(.year, from: currentDate)) \(calendar.component(.month, from: currentDate)) \(day.number)"
-        return dateFormatter.date(from: dateString)
     }
     
     struct Day: Identifiable {
@@ -77,12 +63,12 @@ struct KairosCalendar: View {
 class CalendarViewModel: ObservableObject {
     @Published var days: [KairosCalendar.Day] = []
     @Published var selectedDate: Date?
-    private var calendarManager: CalendarManager
-    private var currentDate: Date {
+    var currentDate: Date {
         didSet {
             updateDays()
         }
     }
+    private var calendarManager: CalendarManager
 
     init(currentDate: Date, calendarManager: CalendarManager) {
         self.currentDate = currentDate
@@ -96,10 +82,20 @@ class CalendarViewModel: ObservableObject {
         }
     }
 
-    private func updateDays() {
+    func updateDays() {
         calendarManager.generateDaysInMonth(for: currentDate) { [weak self] days in
             self?.days = days
         }
+    }
+
+    func selectDate(day: KairosCalendar.Day) {
+        selectedDate = getDate(for: day)
+    }
+
+    func getDate(for day: KairosCalendar.Day) -> Date? {
+        var components = Calendar.current.dateComponents([.year, .month], from: currentDate)
+        components.day = Int(day.number)
+        return Calendar.current.date(from: components)
     }
 }
 
@@ -121,18 +117,17 @@ class EventViewModel: ObservableObject {
             if let events = events {
                 self?.events = events
             }
-            // Handle the error accordingly.
+            // Optionally handle the error.
         }
     }
 }
 
 struct CalendarHeaderView: View {
-    @Binding var currentDate: Date
-    let changeMonth: (Int) -> Void
+    @ObservedObject var calendarViewModel: CalendarViewModel
     
     var body: some View {
         HStack {
-            Button(action: { changeMonth(-1) }) {
+            Button(action: { calendarViewModel.changeMonth(by: -1) }) {
                 Image(systemName: "arrow.left")
                     .foregroundColor(.primary)
             }
@@ -140,13 +135,13 @@ struct CalendarHeaderView: View {
 
             Spacer()
 
-            Text(monthYearString(from: currentDate))
+            Text(monthYearString(from: calendarViewModel.currentDate))
                 .font(.title)
-                .accessibilityLabel(monthYearAccessibilityString(from: currentDate))
+                .accessibilityLabel(monthYearAccessibilityString(from: calendarViewModel.currentDate))
 
             Spacer()
 
-            Button(action: { changeMonth(1) }) {
+            Button(action: { calendarViewModel.changeMonth(by: 1) }) {
                 Image(systemName: "arrow.right")
                     .foregroundColor(.primary)
             }
