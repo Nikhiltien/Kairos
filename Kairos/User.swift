@@ -6,3 +6,124 @@
 //
 
 import Foundation
+import SwiftUI
+import FirebaseAuth
+import FirebaseAuthUI
+import FirebaseOAuthUI
+import FirebaseGoogleAuthUI
+import FirebaseEmailAuthUI
+import FirebasePhoneAuthUI
+import FirebaseFirestore
+
+struct AuthViewControllerRepresentable: UIViewControllerRepresentable {
+    @Binding var hasCompletedOnboarding: Bool
+    
+    func makeUIViewController(context: Context) -> UINavigationController {
+        let authUI = FUIAuth.defaultAuthUI()!
+        let providers: [FUIAuthProvider] = [
+            FUIEmailAuth(),
+            FUIPhoneAuth(authUI: authUI),
+            FUIGoogleAuth(authUI: authUI),
+            FUIOAuth.appleAuthProvider()
+        ]
+        authUI.providers = providers
+        
+        let authViewController = authUI.authViewController()
+        return authViewController
+    }
+    
+    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
+    
+    typealias UIViewControllerType = UINavigationController
+}
+
+enum UserRole: String {
+    case local = "Local"
+    case regular = "Regular"
+    case premium = "Premium"
+}
+
+class User: Identifiable, ObservableObject {
+    @Published var id: String
+    @Published var account: String?  // Could be Apple ID, phone number, email, etc.
+    @Published var userRole: UserRole
+    // Consider adding more attributes relevant to your application context.
+    
+    init(id: String, account: String?, userRole: UserRole) {
+        self.id = id
+        self.account = account
+        self.userRole = userRole
+    }
+}
+
+class UserSession: ObservableObject {
+    @Published var currentUser: User?
+    @Published var hasCompletedOnboarding: Bool = false
+    
+    // Additional logic and methods...
+}
+
+class UserService: ObservableObject {
+    private let db = Firestore.firestore()
+    
+    // Singleton instance
+    static let shared = UserService()
+
+    // Current user instance
+    @Published var currentUser: User?
+
+    private init() {}
+    
+    // Fetch user data from Firestore
+    func fetchCurrentUser(uid: String) {
+        let userDoc = db.collection("users").document(uid)
+        userDoc.getDocument { document, error in
+            if let document = document, document.exists {
+                let userData = document.data()
+                let userRole = UserRole(rawValue: userData?["role"] as? String ?? "Local") ?? .local
+                self.currentUser = User(id: uid, account: userData?["account"] as? String, userRole: userRole)
+            } else {
+                print("User does not exist")
+                // Handle user creation or logging as local user
+            }
+        }
+    }
+    
+    // Sign-in or registration logic
+    func authenticateUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
+        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+            guard let uid = authResult?.user.uid else {
+                completion(false)
+                return
+            }
+            self.fetchCurrentUser(uid: uid)
+            completion(true)
+        }
+    }
+    
+    // Sign out logic
+    func signOut() -> Bool {
+        do {
+            try Auth.auth().signOut()
+            self.currentUser = nil  // Reset current user
+            return true
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+            return false
+        }
+    }
+    
+    // Update user role
+    func updateUserRole(userId: String, newRole: UserRole, completion: @escaping (Bool) -> Void) {
+        let userDoc = db.collection("users").document(userId)
+        userDoc.updateData(["role": newRole.rawValue]) { error in
+            if let error = error {
+                print("Error updating user role: \(error.localizedDescription)")
+                completion(false)
+            } else {
+                self.currentUser?.userRole = newRole
+                completion(true)
+            }
+        }
+    }
+}

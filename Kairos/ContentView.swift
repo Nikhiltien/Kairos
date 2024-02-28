@@ -7,12 +7,24 @@
 
 import Foundation
 import SwiftUI
+import FirebaseAuth
 
 struct ContentView: View {
+    @ObservedObject private var userService = UserService.shared
     @State private var currentDate = Date()
     @State private var showingSideMenu = false
     let calendarManager = CalendarManager()
     @State private var selectedTab: Tab = .calendar
+    
+    // Determine if the user is authenticated
+    var isUserAuthenticated: Bool {
+        return Auth.auth().currentUser != nil
+    }
+    
+    func signOut() {
+        // Sign out logic using FirebaseAuth
+        try? Auth.auth().signOut()
+    }
 
     var body: some View {
         NavigationView {
@@ -75,9 +87,9 @@ struct ContentView: View {
                     .padding()
                 }
 
-                // Side menu overlay
                 if showingSideMenu {
-                    SideMenuView(isShowing: $showingSideMenu)
+                    SideMenuView(isShowing: $showingSideMenu,
+                                 signOutAction: signOut)
                         .transition(.move(edge: .leading))
                 }
             }
@@ -92,14 +104,20 @@ struct ContentView: View {
 
 struct SideMenuView: View {
     @Binding var isShowing: Bool
-    
+    @ObservedObject private var userService = UserService.shared
+    let signOutAction: () -> Void
+    @State private var activeSheet: ActiveSheet?
+
     var body: some View {
         VStack(alignment: .leading) {
             Button("Profile") {
                 // Action for Profile
             }
             Button("Account") {
-                // Action for Account
+                activeSheet = userService.currentUser != nil ? .account : .signInOptions
+            }
+            Button("Sign Out") {
+                signOutAction()
             }
             Button("Privacy") {
                 // Action for Privacy
@@ -113,5 +131,48 @@ struct SideMenuView: View {
         .offset(x: isShowing ? 0 : -250, y: 0)
         .padding(.top, 100)
         .edgesIgnoringSafeArea(.all)
+        .sheet(item: $activeSheet) { item in
+            switch item {
+            case .account:
+                AccountView(userService: userService)
+            case .signInOptions:
+                SignInOptionsView(hasCompletedOnboarding: .constant(false))
+            }
+        }
+    }
+}
+
+struct AccountView: View {
+    @ObservedObject var userService: UserService
+
+    var body: some View {
+        VStack {
+            if let user = userService.currentUser {
+                Text("Username: \(user.id)")
+                Text("Account: \(user.account ?? "Not available")")
+                Button("Sign Out") {
+                    userService.signOut()
+                }
+            }
+        }
+    }
+}
+
+
+struct SignInOptionsView: View {
+    @Binding var hasCompletedOnboarding: Bool
+    
+    var body: some View {
+        NavigationView {
+            AuthViewControllerRepresentable(hasCompletedOnboarding: $hasCompletedOnboarding)
+        }
+    }
+}
+
+enum ActiveSheet: Identifiable {
+    case account, signInOptions
+    
+    var id: Int {
+        hashValue
     }
 }

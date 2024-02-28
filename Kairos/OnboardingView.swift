@@ -11,9 +11,33 @@ import Foundation
 import SwiftUI
 import EventKit
 import FirebaseOAuthUI
-import FirebaseGoogleAuthUI
-import FirebaseEmailAuthUI
-import FirebasePhoneAuthUI
+
+// SignInView using FirebaseUI for authentication
+struct SignInView: View {
+    @Binding var hasCompletedOnboarding: Bool
+    
+    var body: some View {
+        AuthViewControllerRepresentable(hasCompletedOnboarding: $hasCompletedOnboarding)
+            .onDisappear {
+                if Auth.auth().currentUser != nil {
+                    hasCompletedOnboarding = true
+                }
+            }
+    }
+}
+
+struct CreateAccountView: View {
+    @Binding var hasCompletedOnboarding: Bool
+
+    var body: some View {
+        AuthViewControllerRepresentable(hasCompletedOnboarding: $hasCompletedOnboarding)
+            .onDisappear {
+                if Auth.auth().currentUser != nil {
+                    hasCompletedOnboarding = true
+                }
+            }
+    }
+}
 
 struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
@@ -94,58 +118,6 @@ struct LocalModeView: View {
     
     var body: some View {
         CalendarAccessView(hasCompletedOnboarding: $hasCompletedOnboarding)
-    }
-}
-
-struct AuthViewControllerRepresentable: UIViewControllerRepresentable {
-    @Binding var hasCompletedOnboarding: Bool
-    
-    func makeUIViewController(context: Context) -> UINavigationController {
-        let authUI = FUIAuth.defaultAuthUI()!
-        let providers: [FUIAuthProvider] = [
-            FUIEmailAuth(),
-            FUIPhoneAuth(authUI: authUI),
-            FUIGoogleAuth(authUI: authUI),
-            FUIOAuth.appleAuthProvider()
-        ]
-        authUI.providers = providers
-        
-        let authViewController = authUI.authViewController()
-        return authViewController
-    }
-    
-    func updateUIViewController(_ uiViewController: UINavigationController, context: Context) {}
-    
-    typealias UIViewControllerType = UINavigationController
-}
-
-// SignInView using FirebaseUI for authentication
-struct SignInView: View {
-    @Binding var hasCompletedOnboarding: Bool
-    
-    var body: some View {
-        AuthViewControllerRepresentable(hasCompletedOnboarding: $hasCompletedOnboarding)
-            .onDisappear {
-                if Auth.auth().currentUser != nil {
-                    hasCompletedOnboarding = true
-                }
-            }
-    }
-}
-
-// CreateAccountView can be similar to SignInView if you want to use FirebaseUI
-// for account creation, as FirebaseUI's email provider includes account creation.
-// If you want to customize the account creation, you would create a separate view similar to SignInView but might restrict the providers or handle differently.
-struct CreateAccountView: View {
-    @Binding var hasCompletedOnboarding: Bool
-
-    var body: some View {
-        AuthViewControllerRepresentable(hasCompletedOnboarding: $hasCompletedOnboarding)
-            .onDisappear {
-                if Auth.auth().currentUser != nil {
-                    hasCompletedOnboarding = true
-                }
-            }
     }
 }
 
