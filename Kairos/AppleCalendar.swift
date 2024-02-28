@@ -11,6 +11,10 @@ import EventKit
 class CalendarManager {
     private let eventStore = EKEventStore()
 
+    func createEvent() -> EKEvent {
+        return EKEvent(eventStore: eventStore)
+    }
+
     // MARK: - Authorization
     func requestEventAccess(completion: @escaping (Bool, Error?) -> Void) {
         if eventStore.responds(to: #selector(EKEventStore.requestFullAccessToEvents(completion:))) {

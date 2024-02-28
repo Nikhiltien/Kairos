@@ -9,6 +9,23 @@ import Foundation
 import SwiftUI
 import EventKit
 
+struct KairosCalendar_Previews: PreviewProvider {
+    static var previews: some View {
+        let calendarManager = CalendarManager()
+        let dummyEventViewModel = EventViewModel(calendarManager: calendarManager)
+        let dummyEvents: [IdentifiableEvent] = [
+            IdentifiableEvent(event: calendarManager.createEvent()),
+            IdentifiableEvent(event: calendarManager.createEvent())
+        ]
+        return KairosCalendar(calendarViewModel: CalendarViewModel(currentDate: Date(), calendarManager: calendarManager), eventViewModel: dummyEventViewModel)
+            .environmentObject(dummyEventViewModel)
+            .onAppear {
+                dummyEventViewModel.events = dummyEvents
+            }
+    }
+}
+
+
 struct KairosCalendar: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     @StateObject private var eventViewModel: EventViewModel
@@ -100,7 +117,7 @@ class CalendarViewModel: ObservableObject {
 }
 
 class EventViewModel: ObservableObject {
-    @Published var events: [EKEvent] = []
+    @Published var events: [IdentifiableEvent] = []
     private var calendarManager: CalendarManager
 
     init(calendarManager: CalendarManager) {
@@ -119,10 +136,17 @@ class EventViewModel: ObservableObject {
 
         calendarManager.fetchEvents(from: date.startOfDay, to: endOfDay) { [weak self] (events, error) in
             if let events = events {
-                self?.events = events
+                self?.events = events.map(IdentifiableEvent.init)
             }
-            // Optionally handle the error.
         }
+    }
+    
+    func updateEvent(event: IdentifiableEvent, title: String?, startDate: Date?, endDate: Date?, completion: @escaping (Bool, Error?) -> Void) {
+        calendarManager.modifyEvent(event: event.event, title: title, startDate: startDate, endDate: endDate, completion: completion)
+    }
+
+    func removeEvent(event: IdentifiableEvent, completion: @escaping (Bool, Error?) -> Void) {
+        calendarManager.deleteEvent(event: event.event, completion: completion)
     }
 }
 
@@ -203,16 +227,126 @@ struct DayView: View {
 struct EventListView: View {
     @ObservedObject var eventViewModel: EventViewModel
     var date: Date
+    @State private var showingEditView = false
+    @State private var selectedEvent: IdentifiableEvent?
 
     var body: some View {
-        List(eventViewModel.events, id: \.eventIdentifier) { event in
-            VStack(alignment: .leading) {
-                Text(event.title).font(.headline)
-                Text(event.startDate, style: .time) + Text(" - ") + Text(event.endDate, style: .time)
-            }
+        List(eventViewModel.events, id: \.id) { identifiableEvent in
+            EventRow(identifiableEvent: identifiableEvent, eventViewModel: eventViewModel, showingEditView: $showingEditView, selectedEvent: $selectedEvent, date: date)
         }
         .onAppear {
+            print("EventListView appeared for date: \(date)")
             eventViewModel.loadEvents(for: date)
+        }
+        .sheet(isPresented: $showingEditView) {
+            if let eventToEdit = selectedEvent {
+                EditEventView(isPresented: $showingEditView, eventViewModel: eventViewModel, identifiableEvent: eventToEdit) {
+                    print("Event updated")
+                    eventViewModel.loadEvents(for: date)
+                }
+            } else {
+                EmptyView() // Ensure a view is returned even when there is no selected event
+            }
+        }
+    }
+}
+
+struct EventRow: View {
+    var identifiableEvent: IdentifiableEvent
+    @ObservedObject var eventViewModel: EventViewModel
+    @Binding var showingEditView: Bool
+    @Binding var selectedEvent: IdentifiableEvent?
+    var date: Date
+
+    private let itemFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(identifiableEvent.event.title).font(.headline)
+            HStack {
+                Text("\(identifiableEvent.event.startDate, formatter: itemFormatter)") + Text(" - ") + Text("\(identifiableEvent.event.endDate, formatter: itemFormatter)")
+            }
+            HStack {
+                Button("Edit") {
+                    selectedEvent = identifiableEvent
+                    showingEditView = true
+                }
+                .padding()
+                .buttonStyle(PlainButtonStyle())
+
+                Button("Delete") {
+                    eventViewModel.removeEvent(event: identifiableEvent) { success, _ in
+                        if success {
+                            print("Event deleted successfully")
+                            eventViewModel.loadEvents(for: date)
+                        } else {
+                            print("Failed to delete event")
+                        }
+                    }
+                }
+                .padding()
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .contentShape(Rectangle()) // Makes sure the entire VStack is tappable, not beyond its bounds.
+        .onTapGesture {
+            // This empty gesture is to prevent list row tap from propagating to edit/delete buttons.
+        }
+    }
+}
+
+struct EditEventView: View {
+    @Binding var isPresented: Bool
+    @ObservedObject var eventViewModel: EventViewModel
+    var identifiableEvent: IdentifiableEvent
+    var onEventUpdated: (() -> Void)?
+    
+    @State private var title: String
+    @State private var startDate: Date
+    @State private var endDate: Date
+
+    init(isPresented: Binding<Bool>, eventViewModel: EventViewModel, identifiableEvent: IdentifiableEvent, onEventUpdated: (() -> Void)?) {
+        self._isPresented = isPresented
+        self.eventViewModel = eventViewModel
+        self.identifiableEvent = identifiableEvent
+        self.onEventUpdated = onEventUpdated
+        _title = State(initialValue: identifiableEvent.event.title)
+        _startDate = State(initialValue: identifiableEvent.event.startDate)
+        _endDate = State(initialValue: identifiableEvent.event.endDate)
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                TextField("Title", text: $title)
+                DatePicker("Start Date", selection: $startDate, displayedComponents: [.date, .hourAndMinute])
+                DatePicker("End Date", selection: $endDate, displayedComponents: [.date, .hourAndMinute])
+
+                Button("Save") {
+                    print("Save button pressed for event: \(title)")
+                    eventViewModel.updateEvent(event: identifiableEvent, title: title, startDate: startDate, endDate: endDate) { success, _ in
+                        if success {
+                            onEventUpdated?()
+                            isPresented = false
+                        } else {
+                            print("Failed to update event")
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Edit Event")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
+            }
         }
     }
 }
@@ -273,5 +407,15 @@ struct AddEventView: View {
                 }
             }
         }
+    }
+}
+
+struct IdentifiableEvent: Identifiable {
+    let id: String
+    let event: EKEvent
+    
+    init(event: EKEvent) {
+        self.id = event.eventIdentifier ?? UUID().uuidString
+        self.event = event
     }
 }
