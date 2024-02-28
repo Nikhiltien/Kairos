@@ -13,17 +13,16 @@ struct ContentView: View {
     @ObservedObject private var userService = UserService.shared
     @State private var currentDate = Date()
     @State private var showingSideMenu = false
+    @State private var showingAddEventView = false
     let calendarManager = CalendarManager()
     @State private var selectedTab: Tab = .calendar
     
-    // Determine if the user is authenticated
     var isUserAuthenticated: Bool {
         userService.currentUser != nil
     }
     
     func signOut() {
         if userService.signOut() {
-            // You can handle additional logic here if needed.
             print("Sign out successful")
         } else {
             print("Sign out failed")
@@ -33,9 +32,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Main view content
                 VStack {
-                    // Top menu bar
                     HStack {
                         Button(action: { showingSideMenu.toggle() }) {
                             Image(systemName: "line.horizontal.3")
@@ -52,7 +49,6 @@ struct ContentView: View {
                         }
                     }
 
-                    // KairosCalendar or the content based on tab selection
                     Group {
                         switch selectedTab {
                         case .social:
@@ -70,7 +66,6 @@ struct ContentView: View {
 
                     Spacer()
 
-                    // Bottom tab pane
                     HStack {
                         Button("Social") {
                             selectedTab = .social
@@ -90,14 +85,41 @@ struct ContentView: View {
                     }
                     .padding()
                 }
+                // Ensuring the Add button is above the bottom bar
+                .overlay(
+                    Group {
+                        if selectedTab == .calendar {
+                            addButton.padding(.bottom, 50) // Adjust this value based on your bottom bar's height
+                        }
+                    }, alignment: .bottomTrailing
+                )
 
                 if showingSideMenu {
-                    SideMenuView(isShowing: $showingSideMenu,
-                                 signOutAction: signOut)
+                    SideMenuView(isShowing: $showingSideMenu, signOutAction: signOut)
                         .transition(.move(edge: .leading))
                 }
             }
             .navigationBarHidden(true)
+        }
+    }
+
+    private var addButton: some View {
+        Button(action: {
+            showingAddEventView.toggle()
+        }) {
+            Image(systemName: "plus")
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .clipShape(Circle())
+                .shadow(radius: 3)
+        }
+        .sheet(isPresented: $showingAddEventView) {
+            let calendarViewModel = CalendarViewModel(currentDate: currentDate, calendarManager: calendarManager)
+            let eventViewModel = EventViewModel(calendarManager: calendarManager)
+            AddEventView(isPresented: $showingAddEventView, eventViewModel: eventViewModel, selectedDate: calendarViewModel.selectedDate) {
+                calendarViewModel.updateDays()
+            }
         }
     }
 

@@ -12,7 +12,6 @@ import EventKit
 struct KairosCalendar: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     @StateObject private var eventViewModel: EventViewModel
-    @State private var showingAddEventView = false
 
     init(calendarViewModel: CalendarViewModel, eventViewModel: EventViewModel) {
         self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
@@ -20,41 +19,22 @@ struct KairosCalendar: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            VStack {
-                CalendarHeaderView(calendarViewModel: calendarViewModel)
-                DayOfWeekHeader()
+        VStack {
+            CalendarHeaderView(calendarViewModel: calendarViewModel)
+            DayOfWeekHeader()
 
-                LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
-                    ForEach(calendarViewModel.days) { day in
-                        DayView(day: day, isSelected: isSelected(day: day))
-                            .onTapGesture {
-                                selectDate(day: day)
-                            }
-                    }
+            LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
+                ForEach(calendarViewModel.days) { day in
+                    DayView(day: day, isSelected: isSelected(day: day))
+                        .onTapGesture {
+                            selectDate(day: day)
+                        }
                 }
-                .padding()
-
-                if let selectedDate = calendarViewModel.selectedDate {
-                    EventListView(eventViewModel: eventViewModel, date: selectedDate)
-                }
-            }
-
-            Button(action: {
-                showingAddEventView.toggle()
-            }) {
-                Image(systemName: "plus")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .clipShape(Circle())
-                    .shadow(radius: 3)
             }
             .padding()
-        }
-        .sheet(isPresented: $showingAddEventView) {
-            AddEventView(isPresented: $showingAddEventView, eventViewModel: eventViewModel, selectedDate: calendarViewModel.selectedDate) {
-                calendarViewModel.updateDays()  // Refresh the calendar days after adding an event.
+
+            if let selectedDate = calendarViewModel.selectedDate {
+                EventListView(eventViewModel: eventViewModel, date: selectedDate)
             }
         }
     }
