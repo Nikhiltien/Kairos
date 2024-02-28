@@ -65,7 +65,7 @@ class UserSession: ObservableObject {
 
 class UserService: ObservableObject {
     private let db = Firestore.firestore()
-    
+
     // Singleton instance
     static let shared = UserService()
 
@@ -73,56 +73,68 @@ class UserService: ObservableObject {
     @Published var currentUser: User?
 
     private init() {}
-    
-    // Fetch user data from Firestore
-    func fetchCurrentUser(uid: String) {
+
+    // Fetch user data from Firestore and update the currentUser
+    func fetchCurrentUser(uid: String, completion: @escaping () -> Void) {
         let userDoc = db.collection("users").document(uid)
-        userDoc.getDocument { document, error in
-            if let document = document, document.exists {
-                let userData = document.data()
-                let userRole = UserRole(rawValue: userData?["role"] as? String ?? "Local") ?? .local
-                self.currentUser = User(id: uid, account: userData?["account"] as? String, userRole: userRole)
-            } else {
-                print("User does not exist")
-                // Handle user creation or logging as local user
+        userDoc.getDocument { [weak self] document, error in
+            DispatchQueue.main.async {
+                if let document = document, document.exists {
+                    let userData = document.data()
+                    let userRole = UserRole(rawValue: userData?["role"] as? String ?? "Local") ?? .local
+                    self?.currentUser = User(id: uid, account: userData?["account"] as? String, userRole: userRole)
+                } else {
+                    print("User does not exist")
+                    // Handle user creation or logging as a local user here if necessary
+                }
+                completion()
             }
         }
     }
-    
-    // Sign-in or registration logic
+
+    // Authenticate user and fetch user data upon successful authentication
     func authenticateUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
-        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            guard let uid = authResult?.user.uid else {
-                completion(false)
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+            guard let uid = authResult?.user.uid, error == nil else {
+                DispatchQueue.main.async {
+                    completion(false)
+                }
                 return
             }
-            self.fetchCurrentUser(uid: uid)
-            completion(true)
+            self?.fetchCurrentUser(uid: uid, completion: {
+                DispatchQueue.main.async {
+                    completion(true)
+                }
+            })
         }
     }
-    
-    // Sign out logic
+
+    // Sign out logic and reset currentUser
     func signOut() -> Bool {
         do {
             try Auth.auth().signOut()
-            self.currentUser = nil  // Reset current user
+            DispatchQueue.main.async { [weak self] in
+                self?.currentUser = nil
+            }
             return true
         } catch {
             print("Error signing out: \(error.localizedDescription)")
             return false
         }
     }
-    
-    // Update user role
+
+    // Update user role with completion feedback
     func updateUserRole(userId: String, newRole: UserRole, completion: @escaping (Bool) -> Void) {
         let userDoc = db.collection("users").document(userId)
-        userDoc.updateData(["role": newRole.rawValue]) { error in
-            if let error = error {
-                print("Error updating user role: \(error.localizedDescription)")
-                completion(false)
-            } else {
-                self.currentUser?.userRole = newRole
-                completion(true)
+        userDoc.updateData(["role": newRole.rawValue]) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error updating user role: \(error.localizedDescription)")
+                    completion(false)
+                } else {
+                    self?.currentUser?.userRole = newRole
+                    completion(true)
+                }
             }
         }
     }

@@ -18,12 +18,16 @@ struct ContentView: View {
     
     // Determine if the user is authenticated
     var isUserAuthenticated: Bool {
-        return Auth.auth().currentUser != nil
+        userService.currentUser != nil
     }
     
     func signOut() {
-        // Sign out logic using FirebaseAuth
-        try? Auth.auth().signOut()
+        if userService.signOut() {
+            // You can handle additional logic here if needed.
+            print("Sign out successful")
+        } else {
+            print("Sign out failed")
+        }
     }
 
     var body: some View {
@@ -116,9 +120,6 @@ struct SideMenuView: View {
             Button("Account") {
                 activeSheet = userService.currentUser != nil ? .account : .signInOptions
             }
-            Button("Sign Out") {
-                signOutAction()
-            }
             Button("Privacy") {
                 // Action for Privacy
             }
@@ -151,13 +152,15 @@ struct AccountView: View {
                 Text("Username: \(user.id)")
                 Text("Account: \(user.account ?? "Not available")")
                 Button("Sign Out") {
-                    userService.signOut()
+                    if userService.signOut() {
+                        // Handle additional sign-out logic or UI feedback as needed.
+                        print("Sign out successful")
+                    }
                 }
             }
         }
     }
 }
-
 
 struct SignInOptionsView: View {
     @Binding var hasCompletedOnboarding: Bool

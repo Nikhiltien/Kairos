@@ -12,6 +12,7 @@ import EventKit
 struct KairosCalendar: View {
     @ObservedObject var calendarViewModel: CalendarViewModel
     @StateObject private var eventViewModel: EventViewModel
+    @State private var showingAddEventView = false
 
     init(calendarViewModel: CalendarViewModel, eventViewModel: EventViewModel) {
         self._calendarViewModel = ObservedObject(wrappedValue: calendarViewModel)
@@ -19,22 +20,41 @@ struct KairosCalendar: View {
     }
 
     var body: some View {
-        VStack {
-            CalendarHeaderView(calendarViewModel: calendarViewModel)
-            DayOfWeekHeader()
+        ZStack(alignment: .bottomTrailing) {
+            VStack {
+                CalendarHeaderView(calendarViewModel: calendarViewModel)
+                DayOfWeekHeader()
 
-            LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
-                ForEach(calendarViewModel.days) { day in
-                    DayView(day: day, isSelected: isSelected(day: day))
-                        .onTapGesture {
-                            selectDate(day: day)
-                        }
+                LazyVGrid(columns: Array(repeating: GridItem(), count: 7)) {
+                    ForEach(calendarViewModel.days) { day in
+                        DayView(day: day, isSelected: isSelected(day: day))
+                            .onTapGesture {
+                                selectDate(day: day)
+                            }
+                    }
+                }
+                .padding()
+
+                if let selectedDate = calendarViewModel.selectedDate {
+                    EventListView(eventViewModel: eventViewModel, date: selectedDate)
                 }
             }
-            .padding()
 
-            if let selectedDate = calendarViewModel.selectedDate {
-                EventListView(eventViewModel: eventViewModel, date: selectedDate)
+            Button(action: {
+                showingAddEventView.toggle()
+            }) {
+                Image(systemName: "plus")
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .clipShape(Circle())
+                    .shadow(radius: 3)
+            }
+            .padding()
+        }
+        .sheet(isPresented: $showingAddEventView) {
+            AddEventView(isPresented: $showingAddEventView, eventViewModel: eventViewModel, selectedDate: calendarViewModel.selectedDate) {
+                calendarViewModel.updateDays()  // Refresh the calendar days after adding an event.
             }
         }
     }
@@ -52,7 +72,7 @@ struct KairosCalendar: View {
             eventViewModel.loadEvents(for: newDate)
         }
     }
-    
+
     struct Day: Identifiable {
         let id = UUID()
         let number: String
@@ -105,6 +125,10 @@ class EventViewModel: ObservableObject {
 
     init(calendarManager: CalendarManager) {
         self.calendarManager = calendarManager
+    }
+
+    func addEvent(title: String, startDate: Date, endDate: Date, completion: @escaping (Bool, Error?) -> Void) {
+        calendarManager.addEvent(title: title, startDate: startDate, endDate: endDate, completion: completion)
     }
 
     func loadEvents(for date: Date) {
@@ -221,5 +245,53 @@ extension Date {
     var endOfDay: Date? {
         let components = DateComponents(day: 1, second: -1)
         return Calendar.current.date(byAdding: components, to: self.startOfDay)
+    }
+}
+
+// AddEventView.swift - Handles event creation UI and logic
+struct AddEventView: View {
+    @Binding var isPresented: Bool
+    @ObservedObject var eventViewModel: EventViewModel
+    var selectedDate: Date?
+    var onEventAdded: (() -> Void)?
+
+    @State private var title: String = ""
+    @State private var startDate: Date
+    @State private var endDate: Date
+
+    init(isPresented: Binding<Bool>, eventViewModel: EventViewModel, selectedDate: Date?, onEventAdded: (() -> Void)?) {
+        self._isPresented = isPresented
+        self.eventViewModel = eventViewModel
+        self.selectedDate = selectedDate
+        self.onEventAdded = onEventAdded
+        _startDate = State(initialValue: selectedDate ?? Date())
+        _endDate = State(initialValue: (selectedDate ?? Date()).addingTimeInterval(3600))  // Default duration 1 hour
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                TextField("Title", text: $title)
+                DatePicker("Start Date", selection: $startDate, displayedComponents: [.date, .hourAndMinute])
+                DatePicker("End Date", selection: $endDate, displayedComponents: [.date, .hourAndMinute])
+
+                Button("Save") {
+                    eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, _ in
+                        if success {
+                            self.onEventAdded?()  // This should trigger updateDays in CalendarViewModel.
+                            isPresented = false
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Add Event")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                }
+            }
+        }
     }
 }
