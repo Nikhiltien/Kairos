@@ -392,7 +392,11 @@ struct AddEventView: View {
                 Button("Save") {
                     eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, _ in
                         if success {
-                            self.onEventAdded?()  // This should trigger updateDays in CalendarViewModel.
+                            // Assuming the event addition was successful; now we send the data to the server.
+                            sendEventToServer(title: title, startDate: startDate, endDate: endDate) { success in
+                                print("Event was sent to the server: \(success)")
+                            }
+                            onEventAdded?()  // Trigger any additional actions like updating the calendar.
                             isPresented = false
                         }
                     }
