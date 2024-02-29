@@ -368,35 +368,53 @@ struct AddEventView: View {
     @ObservedObject var eventViewModel: EventViewModel
     var selectedDate: Date?
     var onEventAdded: (() -> Void)?
-
+    
     @State private var title: String = ""
+    @State private var location: String = ""
+    @State private var url: String = ""
+    @State private var allDay: Bool = false
+    @State private var repeatOption: String = "Never"
     @State private var startDate: Date
     @State private var endDate: Date
-
+    @State private var sendToServer: Bool = false
+    
+    let repeatOptions = ["Never", "Daily", "Weekly", "Monthly", "Yearly"]
+    
     init(isPresented: Binding<Bool>, eventViewModel: EventViewModel, selectedDate: Date?, onEventAdded: (() -> Void)?) {
         self._isPresented = isPresented
         self.eventViewModel = eventViewModel
         self.selectedDate = selectedDate
         self.onEventAdded = onEventAdded
         _startDate = State(initialValue: selectedDate ?? Date())
-        _endDate = State(initialValue: (selectedDate ?? Date()).addingTimeInterval(3600))  // Default duration 1 hour
+        _endDate = State(initialValue: (selectedDate ?? Date()).addingTimeInterval(3600)) // Default duration 1 hour
     }
-
+    
     var body: some View {
         NavigationView {
             Form {
                 TextField("Title", text: $title)
-                DatePicker("Start Date", selection: $startDate, displayedComponents: [.date, .hourAndMinute])
-                DatePicker("End Date", selection: $endDate, displayedComponents: [.date, .hourAndMinute])
-
+                TextField("Location", text: $location)
+                TextField("URL", text: $url)
+                Toggle("All Day", isOn: $allDay)
+                Picker("Repeat", selection: $repeatOption) {
+                    ForEach(repeatOptions, id: \.self) { option in
+                        Text(option).tag(option)
+                    }
+                }
+                DatePicker("Start Date", selection: $startDate, displayedComponents: allDay ? [.date] : [.date, .hourAndMinute])
+                DatePicker("End Date", selection: $endDate, displayedComponents: allDay ? [.date] : [.date, .hourAndMinute])
+                Toggle("Send to Server", isOn: $sendToServer)
+                
                 Button("Save") {
+                    if sendToServer {
+                        // This check ensures we only send the event to the server if the toggle is enabled.
+                        sendEventToServer(title: title, startDate: startDate, endDate: endDate) { success in
+                            print("Event was sent to the server: \(success)")
+                        }
+                    }
                     eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, _ in
                         if success {
-                            // Assuming the event addition was successful; now we send the data to the server.
-                            sendEventToServer(title: title, startDate: startDate, endDate: endDate) { success in
-                                print("Event was sent to the server: \(success)")
-                            }
-                            onEventAdded?()  // Trigger any additional actions like updating the calendar.
+                            onEventAdded?()
                             isPresented = false
                         }
                     }
