@@ -14,71 +14,88 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
-from django.http import HttpResponse
-import os
-from django.http import JsonResponse
-from openai import OpenAI
-from dotenv import load_dotenv
+
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.views.decorators.http import require_http_methods
+import os
+from dotenv import load_dotenv
+from openai import OpenAI
+from django.urls import path
+import gevent
+import logging
+
+logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='a',
+                    format='%(name)s - %(levelname)s - %(message)s')
 
 # Load environment variables
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
+def handle_openai_request(data, response_container):
+    api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=api_key)
+    event_title = data.get('title', '')
+
+    # Create a new thread for the conversation in OpenAI context
+    thread = client.beta.threads.create()
+
+    # Add the user's message to the thread
+    client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content=event_title
+    )
+
+    # Start the assistant run and wait for its completion
+    run = client.beta.threads.runs.create(
+        thread_id=thread.id,
+        assistant_id='asst_OprZ49gQ0ckkTF8GoHKwtXDy'
+    )
+
+    while True:
+        updated_run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+        if updated_run.status in ['completed', 'failed']:
+            break
+
+    # Retrieve the final messages from the thread
+    messages_response = client.beta.threads.messages.list(thread_id=thread.id)
+
+    if messages_response.data:
+        for message in reversed(messages_response.data):  # Iterate in reverse to get the most recent message first
+            if message.role == 'assistant':  # Check if the message is from the assistant
+                # Assuming message.content is a list, check the first item if it exists
+                if hasattr(message, 'content') and isinstance(message.content, list) and message.content:
+                    content_item = message.content[0]
+                    if hasattr(content_item, 'text') and hasattr(content_item.text, 'value'):
+                        # Store the assistant's message in the response container and break
+                        response_container['response'] = content_item.text.value
+                        break
+                else:
+                    logging.error("Message content is not a list or is missing.")
+                break  # Break after processing the most recent assistant's message
+    else:
+        logging.error("No messages found in the response.")
+
 @csrf_exempt
 def home(request):
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        return HttpResponse("API key is not set.", status=500)
-
-    client = OpenAI(api_key=api_key)
-
-    if request.method == 'GET':
-        # GET request: Continue handling GPT interaction
-        user_message = request.GET.get('message', 'Hello, World!')
-        try:
-            completion = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are an assistant."},
-                    {"role": "user", "content": user_message}
-                ]
-            )
-            gpt_response = completion.choices[0].message.content
-            return JsonResponse({'response': gpt_response})
-        except Exception as e:
-            return HttpResponse(f"Error: {str(e)}", status=500)
-
-    elif request.method == 'POST':
-        # POST request: Process event data and interact with GPT
+    if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            event_title = data.get('title', '')  # Use default empty string if not provided
+            response_container = {}
 
-            # Interact with the OpenAI API using the event title
-            try:
-                completion = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "You are an assistant."},
-                        {"role": "user", "content": event_title}
-                    ]
-                )
-                # Return the AI's response related to the event title
-                gpt_response = completion.choices[0].message.content
-                return JsonResponse({'response': gpt_response})
-            except Exception as e:
-                return HttpResponse(f"Error interacting with OpenAI: {str(e)}", status=500)
+            # Use gevent.spawn to offload the OpenAI API call to a greenlet
+            api_greenlet = gevent.spawn(handle_openai_request, data, response_container)
+            api_greenlet.join()  # Wait for the greenlet to finish
 
+            return JsonResponse(response_container)
         except json.JSONDecodeError:
             return HttpResponse("Invalid JSON", status=400)
         except Exception as e:
-            return HttpResponse(f"Error processing request: {str(e)}", status=500)
+            error_message = f"Error processing request: {str(e)}"
+            return HttpResponse(error_message, status=500)
 
 urlpatterns = [
     path('', home, name='home'),
 ]
+
