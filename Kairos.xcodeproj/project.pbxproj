@@ -53,6 +53,7 @@
 		10E7B9D32B8EEB240056C031 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E7B9D22B8EEB240056C031 /* User.swift */; };
 		10E7B9D72B9060190056C031 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 10E7B9D62B9060190056C031 /* GoogleService-Info.plist */; };
 		10E7B9D92B9110520056C031 /* AI_helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E7B9D82B9110520056C031 /* AI_helper.swift */; };
+		10E7B9DB2B919CDE0056C031 /* PlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E7B9DA2B919CDE0056C031 /* PlannerView.swift */; };
 		10F0F52E2B8BE8D800E3A8B0 /* KairosApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */; };
 		10F0F5322B8BE8D800E3A8B0 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F0F5312B8BE8D800E3A8B0 /* Item.swift */; };
 		10F0F5342B8BE8DA00E3A8B0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10F0F5332B8BE8DA00E3A8B0 /* Assets.xcassets */; };
@@ -90,6 +91,7 @@
 		10E7B9D22B8EEB240056C031 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		10E7B9D62B9060190056C031 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		10E7B9D82B9110520056C031 /* AI_helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI_helper.swift; sourceTree = "<group>"; };
+		10E7B9DA2B919CDE0056C031 /* PlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerView.swift; sourceTree = "<group>"; };
 		10F0F52A2B8BE8D800E3A8B0 /* Kairos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kairos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		10F0F52D2B8BE8D800E3A8B0 /* KairosApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KairosApp.swift; sourceTree = "<group>"; };
 		10F0F5312B8BE8D800E3A8B0 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 				10D5FC9B2B8DB744002CBE93 /* ContentView.swift */,
 				10E7B9D22B8EEB240056C031 /* User.swift */,
 				10E7B9D82B9110520056C031 /* AI_helper.swift */,
+				10E7B9DA2B919CDE0056C031 /* PlannerView.swift */,
 				10D5FC732B8D8E44002CBE93 /* OnboardingView.swift */,
 				10D5FC6C2B8D8A0A002CBE93 /* AppleCalendar.swift */,
 				10D5FC992B8DB661002CBE93 /* KairosCalendar.swift */,
@@ -420,6 +423,7 @@
 				10D5FC9C2B8DB744002CBE93 /* ContentView.swift in Sources */,
 				10E7B9D92B9110520056C031 /* AI_helper.swift in Sources */,
 				10F0F52E2B8BE8D800E3A8B0 /* KairosApp.swift in Sources */,
+				10E7B9DB2B919CDE0056C031 /* PlannerView.swift in Sources */,
 				10D5FC9A2B8DB661002CBE93 /* KairosCalendar.swift in Sources */,
 				10D5FC6D2B8D8A0A002CBE93 /* AppleCalendar.swift in Sources */,
 				10E7B9D32B8EEB240056C031 /* User.swift in Sources */,

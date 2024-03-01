@@ -54,7 +54,20 @@ struct ContentView: View {
                         case .social:
                             Text("Social View")
                         case .planner:
-                            Text("Planner View")
+                            PlannerView(
+                                addAction: { arguments in
+                                    // Implement the action logic here using arguments and calendarManager
+                                    print("Add action executed with arguments: \(arguments)")
+                                },
+                                editAction: { arguments in
+                                    // Implement the edit logic here
+                                    print("Edit action executed with arguments: \(arguments)")
+                                },
+                                deleteAction: { arguments in
+                                    // Implement the delete logic here
+                                    print("Delete action executed with arguments: \(arguments)")
+                                }
+                            )
                         case .calendar:
                             let calendarViewModel = CalendarViewModel(currentDate: currentDate, calendarManager: calendarManager)
                             let eventViewModel = EventViewModel(calendarManager: calendarManager)
