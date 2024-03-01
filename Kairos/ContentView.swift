@@ -16,11 +16,11 @@ struct ContentView: View {
     @State private var showingAddEventView = false
     let calendarManager = CalendarManager()
     @State private var selectedTab: Tab = .calendar
-    
+
     var isUserAuthenticated: Bool {
         userService.currentUser != nil
     }
-    
+
     func signOut() {
         if userService.signOut() {
             print("Sign out successful")
@@ -33,6 +33,7 @@ struct ContentView: View {
         NavigationView {
             ZStack {
                 VStack {
+                    // Navigation bar section
                     HStack {
                         Button(action: { showingSideMenu.toggle() }) {
                             Image(systemName: "line.horizontal.3")
@@ -49,6 +50,7 @@ struct ContentView: View {
                         }
                     }
 
+                    // Main content based on selected tab
                     Group {
                         switch selectedTab {
                         case .social:
@@ -56,22 +58,17 @@ struct ContentView: View {
                         case .planner:
                             PlannerView(
                                 addAction: { arguments in
-                                    // Implement the action logic here using arguments and calendarManager
-                                    print("Add action executed with arguments: \(arguments)")
+                                    print("PlannerView Add Action")
                                 },
                                 editAction: { arguments in
-                                    // Implement the edit logic here
-                                    print("Edit action executed with arguments: \(arguments)")
+                                    print("PlannerView Edit Action")
                                 },
                                 deleteAction: { arguments in
-                                    // Implement the delete logic here
-                                    print("Delete action executed with arguments: \(arguments)")
+                                    print("PlannerView Delete Action")
                                 }
                             )
                         case .calendar:
-                            let calendarViewModel = CalendarViewModel(currentDate: currentDate, calendarManager: calendarManager)
-                            let eventViewModel = EventViewModel(calendarManager: calendarManager)
-                            KairosCalendar(calendarViewModel: calendarViewModel, eventViewModel: eventViewModel)
+                            calendarViewSection
                         case .chat:
                             Text("Chat View")
                         }
@@ -79,46 +76,43 @@ struct ContentView: View {
 
                     Spacer()
 
-                    HStack {
-                        Button("Social") {
-                            selectedTab = .social
-                        }
-                        Spacer()
-                        Button("Planner") {
-                            selectedTab = .planner
-                        }
-                        Spacer()
-                        Button("Calendar") {
-                            selectedTab = .calendar
-                        }
-                        Spacer()
-                        Button("Chat") {
-                            selectedTab = .chat
-                        }
-                    }
-                    .padding()
+                    CustomTabBar(selectedTab: $selectedTab)
                 }
-                // Ensuring the Add button is above the bottom bar
-                .overlay(
-                    Group {
-                        if selectedTab == .calendar {
-                            addButton.padding(.bottom, 50) // Adjust this value based on your bottom bar's height
-                        }
-                    }, alignment: .bottomTrailing
-                )
 
                 if showingSideMenu {
                     SideMenuView(isShowing: $showingSideMenu, signOutAction: signOut)
                         .transition(.move(edge: .leading))
+                }
+
+                // Add button for the calendar view
+                if selectedTab == .calendar {
+                    VStack {
+                        Spacer() // Pushes the content to the bottom
+                        HStack {
+                            Spacer() // Pushes the content to the right
+                            addButton
+                        }
+                    }
+                    .animation(.default, value: selectedTab)
+                    .transition(.move(edge: .trailing))
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 20)
                 }
             }
             .navigationBarHidden(true)
         }
     }
 
+    private var calendarViewSection: some View {
+        let calendarViewModel = CalendarViewModel(currentDate: currentDate, calendarManager: calendarManager)
+        let eventViewModel = EventViewModel(calendarManager: calendarManager)
+        return KairosCalendar(calendarViewModel: calendarViewModel, eventViewModel: eventViewModel)
+    }
+
+    // Adjustments for the addButton within ContentView
     private var addButton: some View {
         Button(action: {
-            showingAddEventView.toggle()
+            showingAddEventView = true
         }) {
             Image(systemName: "plus")
                 .padding()
@@ -127,17 +121,43 @@ struct ContentView: View {
                 .clipShape(Circle())
                 .shadow(radius: 3)
         }
+        // Position the button at the bottom right corner of the screen
+        .padding(.trailing, 25) // Right padding
+        .padding(.bottom, 25)   // Bottom padding
         .sheet(isPresented: $showingAddEventView) {
-            let calendarViewModel = CalendarViewModel(currentDate: currentDate, calendarManager: calendarManager)
-            let eventViewModel = EventViewModel(calendarManager: calendarManager)
-            AddEventView(isPresented: $showingAddEventView, eventViewModel: eventViewModel, selectedDate: calendarViewModel.selectedDate) {
-                calendarViewModel.updateDays()
+            AddEventView(isPresented: $showingAddEventView, eventViewModel: EventViewModel(calendarManager: calendarManager), selectedDate: currentDate) {
+                currentDate = currentDate // Refresh or update if necessary
             }
         }
     }
 
     enum Tab {
         case social, planner, calendar, chat
+    }
+}
+
+struct CustomTabBar: View {
+    @Binding var selectedTab: ContentView.Tab
+
+    var body: some View {
+        HStack {
+            Button("Social") {
+                selectedTab = .social
+            }
+            Spacer()
+            Button("Planner") {
+                selectedTab = .planner
+            }
+            Spacer()
+            Button("Calendar") {
+                selectedTab = .calendar
+            }
+            Spacer()
+            Button("Chat") {
+                selectedTab = .chat
+            }
+        }
+        .padding()
     }
 }
 

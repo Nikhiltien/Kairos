@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 
+// Task structure to define properties of tasks
 struct Task: Identifiable {
     let id: String
     var description: String
@@ -17,26 +18,16 @@ struct Task: Identifiable {
     enum TaskAction: String {
         case add, edit, delete
     }
-
-    // Tasks are identified and compared based on their IDs only, for simplicity.
-    // This is a workaround as you cannot hash or compare closures.
 }
 
+// Main view for task planning
 struct PlannerView: View {
     @State private var tasks: [Task] = []
+    @State private var isAddingTask = false
 
     var addAction: ([String: Any]) -> Void
     var editAction: ([String: Any]) -> Void
     var deleteAction: ([String: Any]) -> Void
-
-    // Map each task action to its corresponding closure
-    private var actions: [Task.TaskAction: ([String: Any]) -> Void] {
-        [
-            .add: addAction,
-            .edit: editAction,
-            .delete: deleteAction
-        ]
-    }
 
     var body: some View {
         NavigationView {
@@ -46,8 +37,7 @@ struct PlannerView: View {
                 } else {
                     ForEach($tasks) { $task in
                         Button(task.description) {
-                            // Triggering the execution with correct context
-                            self.executeTask(task)
+                            executeTask(task)
                         }
                         .swipeActions {
                             Button(role: .destructive) {
@@ -60,24 +50,33 @@ struct PlannerView: View {
                 }
             }
             .navigationTitle("Planned Tasks")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        isAddingTask = true
+                    }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $isAddingTask) {
+                TaskCreationView(addAction: { description, startDate, endDate in
+                    let taskArguments: [String: Any] = ["title": description, "startDate": startDate, "endDate": endDate]
+                    addTask(description: description, actionType: .add, arguments: taskArguments)
+                })
+            }
         }
     }
 
     private func removeTask(task: Task) {
-        tasks.removeAll { $0.id == task.id }
+        tasks.removeAll(where: { $0.id == task.id })
     }
 
-    private func addTask() {
-        let newTask = Task(
-            id: UUID().uuidString,
-            description: "Task \(tasks.count + 1)",
-            actionType: .add,
-            arguments: ["key": "value"]  // Example arguments
-        )
+    private func addTask(description: String, actionType: Task.TaskAction, arguments: [String: Any]) {
+        let newTask = Task(id: UUID().uuidString, description: description, actionType: actionType, arguments: arguments)
         tasks.append(newTask)
     }
 
-    // Function to execute a task
     private func executeTask(_ task: Task) {
         switch task.actionType {
         case .add:
@@ -86,6 +85,40 @@ struct PlannerView: View {
             editAction(task.arguments)
         case .delete:
             deleteAction(task.arguments)
+        }
+    }
+}
+
+// View for creating a new task
+struct TaskCreationView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var title: String = ""
+    @State private var startDate: Date = Date()
+    @State private var endDate: Date = Date()
+    
+    var addAction: (String, Date, Date) -> Void
+
+    var body: some View {
+        NavigationView {
+            Form {
+                TextField("Title", text: $title)
+                DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                DatePicker("End Date", selection: $endDate, displayedComponents: .date)
+
+                Button("Add Task") {
+                    addAction(title, startDate, endDate)
+                    presentationMode.wrappedValue.dismiss()
+                }
+                .disabled(title.isEmpty)
+            }
+            .navigationTitle("Add New Task")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
         }
     }
 }
