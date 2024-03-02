@@ -407,15 +407,29 @@ struct AddEventView: View {
                 
                 Button("Save") {
                     if sendToServer {
-                        // This check ensures we only send the event to the server if the toggle is enabled.
-                        sendEventToServer(title: title, startDate: startDate, endDate: endDate) { success in
-                            print("Event was sent to the server: \(success)")
+                        sendEventToServer(title: title, startDate: startDate, endDate: endDate) { success, serverResponse in
+                            if success, let response = serverResponse {
+                                DispatchQueue.main.async {
+                                    print("Server response: \(response.response)")
+                                    // Potentially update any relevant state or UI here as well
+                                }
+                            } else {
+                                print("Failed to send event to the server.")
+                            }
                         }
                     }
-                    eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, _ in
+                    
+                    eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, error in
                         if success {
-                            onEventAdded?()
-                            isPresented = false
+                            DispatchQueue.main.async {
+                                onEventAdded?()
+                                isPresented = false
+                            }
+                        } else if let error = error {
+                            DispatchQueue.main.async {
+                                // Update your UI to reflect the error
+                                print("Error adding event: \(error.localizedDescription)")
+                            }
                         }
                     }
                 }

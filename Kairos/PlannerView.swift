@@ -20,28 +20,74 @@ struct Task: Identifiable {
     }
 }
 
-// Main view for task planning
+class PlannerViewModel: ObservableObject {
+    static let shared = PlannerViewModel()
+    @Published var tasks: [Task] = []
+
+    private init() {
+        NotificationCenter.default.addObserver(self, selector: #selector(receivedDataFromServer(_:)), name: NSNotification.Name("ReceivedDataFromServer"), object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func receivedDataFromServer(_ notification: Notification) {
+        if let response = notification.userInfo?["response"] as? ServerResponse {
+            DispatchQueue.main.async {
+                let taskDescription = "Response from server: \(response.response)"
+                self.addTask(description: taskDescription, actionType: .add, arguments: [:])
+            }
+        }
+    }
+
+    func addTask(description: String, actionType: Task.TaskAction, arguments: [String: Any]) {
+        let newTask = Task(id: UUID().uuidString, description: description, actionType: actionType, arguments: arguments)
+        DispatchQueue.main.async {
+            self.tasks.append(newTask)
+        }
+    }
+
+    func removeTask(task: Task) {
+        DispatchQueue.main.async {
+            self.tasks.removeAll { $0.id == task.id }
+        }
+    }
+
+    func executeTask(_ task: Task, addAction: @escaping ([String: Any]) -> Void, editAction: @escaping ([String: Any]) -> Void, deleteAction: @escaping ([String: Any]) -> Void) {
+        switch task.actionType {
+        case .add:
+            addAction(task.arguments)
+        case .edit:
+            editAction(task.arguments)
+        case .delete:
+            deleteAction(task.arguments)
+        }
+    }
+}
+
 struct PlannerView: View {
-    @State private var tasks: [Task] = []
-    @State private var isAddingTask = false
+    @StateObject private var viewModel = PlannerViewModel.shared
 
     var addAction: ([String: Any]) -> Void
     var editAction: ([String: Any]) -> Void
     var deleteAction: ([String: Any]) -> Void
 
+    @State private var isAddingTask = false
+
     var body: some View {
         NavigationView {
             List {
-                if tasks.isEmpty {
+                if viewModel.tasks.isEmpty {
                     Text("No tasks available").italic()
                 } else {
-                    ForEach($tasks) { $task in
+                    ForEach($viewModel.tasks) { $task in
                         Button(task.description) {
-                            executeTask(task)
+                            viewModel.executeTask(task, addAction: addAction, editAction: editAction, deleteAction: deleteAction)
                         }
                         .swipeActions {
                             Button(role: .destructive) {
-                                removeTask(task: task)
+                                viewModel.removeTask(task: task)
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
@@ -60,43 +106,24 @@ struct PlannerView: View {
                 }
             }
             .sheet(isPresented: $isAddingTask) {
-                TaskCreationView(addAction: { description, startDate, endDate in
-                    let taskArguments: [String: Any] = ["title": description, "startDate": startDate, "endDate": endDate]
-                    addTask(description: description, actionType: .add, arguments: taskArguments)
+                TaskCreationView(addAction: { title, _, arguments in
+                    viewModel.addTask(description: title, actionType: .add, arguments: arguments)
                 })
             }
         }
     }
-
-    private func removeTask(task: Task) {
-        tasks.removeAll(where: { $0.id == task.id })
-    }
-
-    private func addTask(description: String, actionType: Task.TaskAction, arguments: [String: Any]) {
-        let newTask = Task(id: UUID().uuidString, description: description, actionType: actionType, arguments: arguments)
-        tasks.append(newTask)
-    }
-
-    private func executeTask(_ task: Task) {
-        switch task.actionType {
-        case .add:
-            addAction(task.arguments)
-        case .edit:
-            editAction(task.arguments)
-        case .delete:
-            deleteAction(task.arguments)
-        }
-    }
 }
 
-// View for creating a new task
+// The rest of your implementation should remain the same.
+
+
 struct TaskCreationView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var title: String = ""
     @State private var startDate: Date = Date()
     @State private var endDate: Date = Date()
     
-    var addAction: (String, Date, Date) -> Void
+    var addAction: (String, Task.TaskAction, [String: Any]) -> Void
 
     var body: some View {
         NavigationView {
@@ -106,7 +133,7 @@ struct TaskCreationView: View {
                 DatePicker("End Date", selection: $endDate, displayedComponents: .date)
 
                 Button("Add Task") {
-                    addAction(title, startDate, endDate)
+                    addAction(title, .add, ["startDate": startDate, "endDate": endDate])
                     presentationMode.wrappedValue.dismiss()
                 }
                 .disabled(title.isEmpty)

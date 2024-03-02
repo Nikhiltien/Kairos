@@ -57,15 +57,9 @@ struct ContentView: View {
                             Text("Social View")
                         case .planner:
                             PlannerView(
-                                addAction: { arguments in
-                                    print("PlannerView Add Action")
-                                },
-                                editAction: { arguments in
-                                    print("PlannerView Edit Action")
-                                },
-                                deleteAction: { arguments in
-                                    print("PlannerView Delete Action")
-                                }
+                                addAction: { _ in print("Add Action") },
+                                editAction: { _ in print("Edit Action") },
+                                deleteAction: { _ in print("Delete Action") }
                             )
                         case .calendar:
                             calendarViewSection

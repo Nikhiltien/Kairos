@@ -1,17 +1,7 @@
-//
-//  KairosApp.swift
-//  Kairos
-//
-//  Created by Nikhil Tien on 2/25/24.
-//
-
 import UIKit
 import SwiftUI
 import FirebaseCore
-import FirebaseFirestore
-import FirebaseAuth
 import FirebaseAuthUI
-import FirebaseAnalytics
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -31,6 +21,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct KairosApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
+    let plannerViewModel = PlannerViewModel.shared
 
     var body: some Scene {
         WindowGroup {
