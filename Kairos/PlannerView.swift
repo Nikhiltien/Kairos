@@ -7,72 +7,59 @@
 
 import SwiftUI
 import Foundation
+import Combine
 
-// Task structure to define properties of tasks
-struct Task: Identifiable {
+struct Task: Identifiable, Codable {
     let id: String
-    var description: String
+    var title: String
+    var startDate: Date
+    var endDate: Date
     var actionType: TaskAction
-    var arguments: [String: Any]
+    var arguments: [String: String] // Retained for potential additional metadata
 
-    enum TaskAction: String {
+    enum TaskAction: String, Codable {
         case add, edit, delete
     }
 }
 
 class PlannerViewModel: ObservableObject {
-    static let shared = PlannerViewModel()
+    static let shared = PlannerViewModel() // temporarily static
     @Published var tasks: [Task] = []
 
-    private init() {
-        NotificationCenter.default.addObserver(self, selector: #selector(receivedDataFromServer(_:)), name: NSNotification.Name("ReceivedDataFromServer"), object: nil)
+    init() {
+        loadTasks()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
-    @objc private func receivedDataFromServer(_ notification: Notification) {
-        if let response = notification.userInfo?["response"] as? ServerResponse {
-            DispatchQueue.main.async {
-                let taskDescription = "Response from server: \(response.response)"
-                self.addTask(description: taskDescription, actionType: .add, arguments: [:])
-            }
+    private func loadTasks() {
+        // Implement loading logic, potentially decoding from a persistent store
+        // This example uses UserDefaults for simplicity; replace with your data store logic
+        if let tasksData = UserDefaults.standard.data(forKey: "tasks"),
+           let decodedTasks = try? JSONDecoder().decode([Task].self, from: tasksData) {
+            tasks = decodedTasks
         }
     }
 
-    func addTask(description: String, actionType: Task.TaskAction, arguments: [String: Any]) {
-        let newTask = Task(id: UUID().uuidString, description: description, actionType: actionType, arguments: arguments)
-        DispatchQueue.main.async {
-            self.tasks.append(newTask)
+    private func saveTasks() {
+        // Implement saving logic, potentially encoding to a persistent store
+        if let encodedTasks = try? JSONEncoder().encode(tasks) {
+            UserDefaults.standard.set(encodedTasks, forKey: "tasks")
         }
+    }
+
+    func addTask(title: String, startDate: Date, endDate: Date) {
+        let newTask = Task(id: UUID().uuidString, title: title, startDate: startDate, endDate: endDate, actionType: .add, arguments: [:])
+        tasks.append(newTask)
+        saveTasks()
     }
 
     func removeTask(task: Task) {
-        DispatchQueue.main.async {
-            self.tasks.removeAll { $0.id == task.id }
-        }
-    }
-
-    func executeTask(_ task: Task, addAction: @escaping ([String: Any]) -> Void, editAction: @escaping ([String: Any]) -> Void, deleteAction: @escaping ([String: Any]) -> Void) {
-        switch task.actionType {
-        case .add:
-            addAction(task.arguments)
-        case .edit:
-            editAction(task.arguments)
-        case .delete:
-            deleteAction(task.arguments)
-        }
+        tasks.removeAll { $0.id == task.id }
+        saveTasks()
     }
 }
 
 struct PlannerView: View {
-    @StateObject private var viewModel = PlannerViewModel.shared
-
-    var addAction: ([String: Any]) -> Void
-    var editAction: ([String: Any]) -> Void
-    var deleteAction: ([String: Any]) -> Void
-
+    @ObservedObject private var viewModel = PlannerViewModel.shared
     @State private var isAddingTask = false
 
     var body: some View {
@@ -81,9 +68,13 @@ struct PlannerView: View {
                 if viewModel.tasks.isEmpty {
                     Text("No tasks available").italic()
                 } else {
-                    ForEach($viewModel.tasks) { $task in
-                        Button(task.description) {
-                            viewModel.executeTask(task, addAction: addAction, editAction: editAction, deleteAction: deleteAction)
+                    ForEach(viewModel.tasks) { task in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(task.title).font(.headline)
+                                Text("Start: \(task.startDate, formatter: itemFormatter)")
+                                Text("End: \(task.endDate, formatter: itemFormatter)")
+                            }
                         }
                         .swipeActions {
                             Button(role: .destructive) {
@@ -106,13 +97,19 @@ struct PlannerView: View {
                 }
             }
             .sheet(isPresented: $isAddingTask) {
-                TaskCreationView(addAction: { title, _, arguments in
-                    viewModel.addTask(description: title, actionType: .add, arguments: arguments)
-                })
+                TaskCreationView(addTask: viewModel.addTask)
             }
         }
     }
 }
+
+private let itemFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateStyle = .short
+    formatter.timeStyle = .short
+    return formatter
+}()
+
 
 // The rest of your implementation should remain the same.
 
@@ -122,8 +119,8 @@ struct TaskCreationView: View {
     @State private var title: String = ""
     @State private var startDate: Date = Date()
     @State private var endDate: Date = Date()
-    
-    var addAction: (String, Task.TaskAction, [String: Any]) -> Void
+
+    var addTask: (String, Date, Date) -> Void
 
     var body: some View {
         NavigationView {
@@ -133,7 +130,7 @@ struct TaskCreationView: View {
                 DatePicker("End Date", selection: $endDate, displayedComponents: .date)
 
                 Button("Add Task") {
-                    addAction(title, .add, ["startDate": startDate, "endDate": endDate])
+                    addTask(title, startDate, endDate)
                     presentationMode.wrappedValue.dismiss()
                 }
                 .disabled(title.isEmpty)

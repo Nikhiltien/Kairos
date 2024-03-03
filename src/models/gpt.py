@@ -22,3 +22,15 @@ completion = client.chat.completions.create(
 
 for choice in completion.choices:
     print(choice.message.content)
+
+
+class GPT:
+    def __init__(self, api_key=None, model=None):
+        if api_key is None: api_key = os.environ.get("OPENAI_API_KEY")
+        self.client = OpenAI(api_key)
+        self.model = model
+        self.threads = {}
+
+    def new_thread(self, thread_id, role, content, assistant):
+        pass
+        

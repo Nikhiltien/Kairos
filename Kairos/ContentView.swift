@@ -56,11 +56,13 @@ struct ContentView: View {
                         case .social:
                             Text("Social View")
                         case .planner:
-                            PlannerView(
-                                addAction: { _ in print("Add Action") },
-                                editAction: { _ in print("Edit Action") },
-                                deleteAction: { _ in print("Delete Action") }
-                            )
+                            // PlannerView(
+                            //     addAction: { _ in print("Add Action") },
+                            //     editAction: { _ in print("Edit Action") },
+                            //     deleteAction: { _ in print("Delete Action") }
+                            // )
+
+                            PlannerView()
                         case .calendar:
                             calendarViewSection
                         case .chat:
@@ -103,7 +105,6 @@ struct ContentView: View {
         return KairosCalendar(calendarViewModel: calendarViewModel, eventViewModel: eventViewModel)
     }
 
-    // Adjustments for the addButton within ContentView
     private var addButton: some View {
         Button(action: {
             showingAddEventView = true

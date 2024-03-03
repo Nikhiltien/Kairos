@@ -403,7 +403,7 @@ struct AddEventView: View {
                 }
                 DatePicker("Start Date", selection: $startDate, displayedComponents: allDay ? [.date] : [.date, .hourAndMinute])
                 DatePicker("End Date", selection: $endDate, displayedComponents: allDay ? [.date] : [.date, .hourAndMinute])
-                Toggle("Send to Server", isOn: $sendToServer)
+                Toggle("AI Assistant", isOn: $sendToServer)
                 
                 Button("Save") {
                     if sendToServer {
