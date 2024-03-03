@@ -1,19 +1,4 @@
-"""
-URL configuration for kairos_proj project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+import time
 import logging
 import json
 import os
@@ -21,8 +6,8 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
 from openai import OpenAI
-from django.urls import path
 import gevent
+from gevent import Timeout
 
 # Basic logging configuration
 logging.basicConfig(level=logging.INFO, filename='logs.log', filemode='a',
@@ -36,58 +21,81 @@ def handle_openai_request(data, response_container):
     api_key = os.getenv("OPENAI_API_KEY")
     client = OpenAI(api_key=api_key)
     event_title = data.get('title', '')
-    
+
     try:
-        # Attempt to create a new thread and interact with it
+        logging.info("Creating a new OpenAI thread.")
         thread = client.beta.threads.create()
         client.beta.threads.messages.create(thread_id=thread.id, role="user", content=event_title)
         run = client.beta.threads.runs.create(thread_id=thread.id, assistant_id='asst_OprZ49gQ0ckkTF8GoHKwtXDy')
 
-        while True:
+        timeout = 30  # seconds
+        start_time = time.time()
+
+        status_checked = False
+        while not status_checked:
+            if time.time() - start_time > timeout:
+                logging.error("Timeout waiting for OpenAI run to complete.")
+                response_container['response'] = "Timeout waiting for OpenAI to respond."
+                return
+
             updated_run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+            logging.info(updated_run)
+            time.sleep(1)
             if updated_run.status in ['completed', 'failed']:
-                break
+                status_checked = True
 
         messages_response = client.beta.threads.messages.list(thread_id=thread.id)
-
-        if messages_response.data:
-            for message in reversed(messages_response.data):
-                if message.role == 'assistant' and hasattr(message, 'content') and isinstance(message.content, list) and message.content:
-                    content_item = message.content[0]
-                    if hasattr(content_item, 'text') and hasattr(content_item.text, 'value'):
-                        response_container['response'] = content_item.text.value
-                        return  # Exit after setting the response
-            # Fallback if no valid assistant message is found
-            response_container['response'] = 'No valid response received from the assistant.'
-        else:
-            logging.error("No messages found in the response.")
+        if not messages_response.data:
+            logging.error("No messages found in the OpenAI thread response.")
             response_container['response'] = 'No messages found in the response from OpenAI.'
+            return
+
+        for message in reversed(messages_response.data):
+            logging.info(message)
+            # Check if the message has the expected structure and content.
+            if message.role == 'assistant' and hasattr(message.content[0], 'text'):
+                # Directly access the 'value' if it exists.
+                response_value = getattr(message.content[0].text, 'value', None)
+                if response_value:
+                    response_container['response'] = response_value
+                    logging.info("Successfully processed the OpenAI thread response.")
+                    return
+
+        logging.info("No valid assistant message found in OpenAI thread response.")
+        response_container['response'] = 'No valid response received from the assistant.'
     except Exception as e:
-        logging.error(f"Exception in handle_openai_request: {str(e)}")
+        logging.error(f"Exception occurred during OpenAI request handling: {e}", exc_info=True)
         response_container['response'] = f"An error occurred: {str(e)}"
 
 @csrf_exempt
 def home(request):
-    logging.info(request)
+    logging.info(f"Request received: {request.method}")
     if request.method == 'POST':
+        # Check if the request is from Kairos
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        if "Kairos" not in user_agent:
+            return HttpResponse("Forbidden", status=403)
+
         try:
             data = json.loads(request.body)
-            logging.info(f"received request: {data}")
-            response_container = {'response': 'Processing failed. Please try again.'}  # Default error response
+            logging.info(f"Received request: {data}")
+            response_container = {}
 
+            # Set a timeout for the OpenAI request handling
+            timeout_seconds = 45
             api_greenlet = gevent.spawn(handle_openai_request, data, response_container)
-            api_greenlet.join()
+            try:
+                with Timeout(timeout_seconds):
+                    api_greenlet.join()
+            except Timeout:
+                return HttpResponse("Request timed out.", status=504)
 
             return JsonResponse(response_container)
         except json.JSONDecodeError:
             return HttpResponse("Invalid JSON", status=400)
         except Exception as e:
             error_message = f"Error processing request: {str(e)}"
+            logging.error(error_message)
             return HttpResponse(error_message, status=500)
     else:
         return HttpResponse("Method Not Allowed", status=405)
-
-urlpatterns = [
-    path('', home, name='home'),
-]
-

@@ -8,7 +8,7 @@
 import Foundation
 
 func sendEventToServer(title: String, startDate: Date, endDate: Date, completion: @escaping (Bool, ServerResponse?) -> Void) {
-    guard let url = URL(string: "http://161.35.251.225/") else {
+    guard let url = URL(string: "https://kairos-tech.xyz/api/assistant/") else {
         print("Invalid URL")
         completion(false, nil)
         return
