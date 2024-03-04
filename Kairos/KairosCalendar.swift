@@ -407,29 +407,27 @@ struct AddEventView: View {
                 
                 Button("Save") {
                     if sendToServer {
+                        // Send the data to the server and dismiss the view immediately
                         sendEventToServer(title: title, startDate: startDate, endDate: endDate) { success, serverResponse in
                             if success, let response = serverResponse {
-                                DispatchQueue.main.async {
-                                    print("Server response: \(response.response)")
-                                    // Potentially update any relevant state or UI here as well
-                                }
+                                print("Server response: \(response.response)")
+                                // Here you might want to store the response or notify the user
+                                // that processing is complete and their data was handled.
                             } else {
                                 print("Failed to send event to the server.")
                             }
                         }
-                    }
-                    
-                    eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, error in
-                        if success {
-                            DispatchQueue.main.async {
+                        // Dismiss the view right after sending the data
+                        isPresented = false
+                    } else {
+                        // Store the event normally without sending to the server
+                        eventViewModel.addEvent(title: title, startDate: startDate, endDate: endDate) { success, error in
+                            if success {
                                 onEventAdded?()
-                                isPresented = false
-                            }
-                        } else if let error = error {
-                            DispatchQueue.main.async {
-                                // Update your UI to reflect the error
+                            } else if let error = error {
                                 print("Error adding event: \(error.localizedDescription)")
                             }
+                            isPresented = false
                         }
                     }
                 }

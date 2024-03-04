@@ -50,7 +50,7 @@ func sendEventToServer(title: String, startDate: Date, endDate: Date, completion
         
         do {
             let serverResponse = try JSONDecoder().decode(ServerResponse.self, from: data)
-            NotificationCenter.default.post(name: NSNotification.Name("ReceivedDataFromServer"), object: nil, userInfo: ["response": serverResponse])
+            NotificationCenter.default.post(name: NSNotification.Name("AIAssistantResponseReceived"), object: nil, userInfo: ["response": serverResponse])
             completion(true, serverResponse)
         } catch {
             print("Error decoding server response: \(error)")

@@ -23,16 +23,82 @@ struct Task: Identifiable, Codable {
 }
 
 class PlannerViewModel: ObservableObject {
-    static let shared = PlannerViewModel() // temporarily static
+    static let shared = PlannerViewModel()
     @Published var tasks: [Task] = []
 
     init() {
         loadTasks()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleAIAssistantResponse(notification:)), name: NSNotification.Name("AIAssistantResponseReceived"), object: nil)
+    }
+
+    @objc private func handleAIAssistantResponse(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let response = userInfo["response"] as? ServerResponse else {
+            print("Invalid response structure.")
+            return
+        }
+
+        // Extract JSON from the server response safely
+        if let jsonData = extractJsonData(from: response.response) {
+            do {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                let decodedTask = try decoder.decode(Task.self, from: jsonData)
+
+                switch decodedTask.actionType {
+                    case .add:
+                        // Generate a new UUID for new tasks, ignoring the 'id' from the AI assistant
+                        addTask(title: decodedTask.title, startDate: decodedTask.startDate, endDate: decodedTask.endDate)
+                    case .edit, .delete:
+                        // For edit and delete actions, use the 'id' provided by the AI assistant
+                        if let index = tasks.firstIndex(where: { $0.id == decodedTask.id }) {
+                            if decodedTask.actionType == .edit {
+                                tasks[index] = Task(id: decodedTask.id, title: decodedTask.title, startDate: decodedTask.startDate, endDate: decodedTask.endDate, actionType: .edit, arguments: decodedTask.arguments)
+                            } else if decodedTask.actionType == .delete {
+                                tasks.remove(at: index)
+                            }
+                        }
+                }
+                saveTasks()
+            } catch {
+                print("Error decoding task from AI response: \(error)")
+                addErrorTask()
+            }
+        } else {
+            print("No valid JSON found in AI response.")
+            addErrorTask()
+        }
+    }
+
+    private func extractJsonData(from response: String) -> Data? {
+        if let jsonRangeStart = response.range(of: "{"),
+           let jsonRangeEnd = response.range(of: "}", options: .backwards) {
+            let jsonSubstring = response[jsonRangeStart.lowerBound...jsonRangeEnd.upperBound]
+            return String(jsonSubstring).data(using: .utf8)
+        }
+        return nil
+    }
+
+    private func addErrorTask() {
+        addTask(title: "ERROR!", startDate: Date(), endDate: Date())
+    }
+
+    func addTask(title: String, startDate: Date, endDate: Date) {
+        // Generate a new Task with a local time zone based dates
+        let userTimeZoneStartDate = convertToUserTimeZone(date: startDate)
+        let userTimeZoneEndDate = convertToUserTimeZone(date: endDate)
+
+        let newTask = Task(id: UUID().uuidString, title: title, startDate: userTimeZoneStartDate, endDate: userTimeZoneEndDate, actionType: .add, arguments: [:])
+        tasks.append(newTask)
+        saveTasks()
+    }
+
+    private func convertToUserTimeZone(date: Date) -> Date {
+        let timeZoneOffset = Double(TimeZone.current.secondsFromGMT(for: date))
+        return date.addingTimeInterval(timeZoneOffset)
     }
 
     private func loadTasks() {
-        // Implement loading logic, potentially decoding from a persistent store
-        // This example uses UserDefaults for simplicity; replace with your data store logic
         if let tasksData = UserDefaults.standard.data(forKey: "tasks"),
            let decodedTasks = try? JSONDecoder().decode([Task].self, from: tasksData) {
             tasks = decodedTasks
@@ -40,16 +106,9 @@ class PlannerViewModel: ObservableObject {
     }
 
     private func saveTasks() {
-        // Implement saving logic, potentially encoding to a persistent store
         if let encodedTasks = try? JSONEncoder().encode(tasks) {
             UserDefaults.standard.set(encodedTasks, forKey: "tasks")
         }
-    }
-
-    func addTask(title: String, startDate: Date, endDate: Date) {
-        let newTask = Task(id: UUID().uuidString, title: title, startDate: startDate, endDate: endDate, actionType: .add, arguments: [:])
-        tasks.append(newTask)
-        saveTasks()
     }
 
     func removeTask(task: Task) {
