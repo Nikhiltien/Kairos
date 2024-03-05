@@ -5,8 +5,6 @@
 //  Created by Nikhil Tien on 2/26/24.
 //
 
-// https://kairos-25a6f.firebaseapp.com/__/auth/handler
-
 import Foundation
 import SwiftUI
 import EventKit

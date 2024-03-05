@@ -15,6 +15,23 @@ import FirebaseEmailAuthUI
 import FirebasePhoneAuthUI
 import FirebaseFirestore
 
+class AuthStateListener: ObservableObject {
+    @Published var isUserAuthenticated: Bool = false
+    private var handle: AuthStateDidChangeListenerHandle?
+
+    init() {
+        self.handle = Auth.auth().addStateDidChangeListener { [weak self] (_, user) in
+            self?.isUserAuthenticated = user != nil
+        }
+    }
+
+    deinit {
+        if let handle = handle {
+            Auth.auth().removeStateDidChangeListener(handle)
+        }
+    }
+}
+
 struct AuthViewControllerRepresentable: UIViewControllerRepresentable {
     @Binding var hasCompletedOnboarding: Bool
     
@@ -66,50 +83,60 @@ class UserSession: ObservableObject {
 class UserService: ObservableObject {
     private let db = Firestore.firestore()
 
-    // Singleton instance
     static let shared = UserService()
 
-    // Current user instance
     @Published var currentUser: User?
 
     private init() {}
 
-    // Fetch user data from Firestore and update the currentUser
-    func fetchCurrentUser(uid: String, completion: @escaping () -> Void) {
+    func fetchCurrentUser(uid: String, completion: @escaping (Bool) -> Void) {
         let userDoc = db.collection("users").document(uid)
         userDoc.getDocument { [weak self] document, error in
             DispatchQueue.main.async {
                 if let document = document, document.exists {
                     let userData = document.data()
-                    let userRole = UserRole(rawValue: userData?["role"] as? String ?? "Local") ?? .local
+                    let userRole = UserRole(rawValue: userData?["role"] as? String ?? UserRole.local.rawValue) ?? .local
                     self?.currentUser = User(id: uid, account: userData?["account"] as? String, userRole: userRole)
+                    completion(true)
                 } else {
-                    print("User does not exist")
-                    // Handle user creation or logging as a local user here if necessary
+                    // Populate with generic data if Firestore document is missing
+                    let email = Auth.auth().currentUser?.email ?? "Not available"
+                    self?.currentUser = User(id: uid, account: email, userRole: .local)
+                    completion(true)
                 }
-                completion()
             }
         }
     }
 
-    // Authenticate user and fetch user data upon successful authentication
     func authenticateUser(email: String, password: String, completion: @escaping (Bool) -> Void) {
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
-            guard let uid = authResult?.user.uid, error == nil else {
+            if let error = error {
+                DispatchQueue.main.async {
+                    print("Authentication error: \(error.localizedDescription)")
+                    completion(false)
+                }
+                return
+            }
+
+            guard let self = self, let authUser = authResult?.user else {
                 DispatchQueue.main.async {
                     completion(false)
                 }
                 return
             }
-            self?.fetchCurrentUser(uid: uid, completion: {
-                DispatchQueue.main.async {
-                    completion(true)
-                }
-            })
+
+            // Initialize currentUser with basic information right after authentication
+            let basicUser = User(id: authUser.uid, account: authUser.email, userRole: .local)
+            DispatchQueue.main.async {
+                self.currentUser = basicUser
+                completion(true)
+            }
+            
+            // Optionally fetch more details and update currentUser further
+            self.fetchCurrentUser(uid: authUser.uid) { _ in }
         }
     }
 
-    // Sign out logic and reset currentUser
     func signOut() -> Bool {
         do {
             try Auth.auth().signOut()
@@ -123,16 +150,15 @@ class UserService: ObservableObject {
         }
     }
 
-    // Update user role with completion feedback
     func updateUserRole(userId: String, newRole: UserRole, completion: @escaping (Bool) -> Void) {
         let userDoc = db.collection("users").document(userId)
-        userDoc.updateData(["role": newRole.rawValue]) { [weak self] error in
+        userDoc.updateData(["role": newRole.rawValue]) { error in
             DispatchQueue.main.async {
                 if let error = error {
                     print("Error updating user role: \(error.localizedDescription)")
                     completion(false)
                 } else {
-                    self?.currentUser?.userRole = newRole
+                    self.currentUser?.userRole = newRole
                     completion(true)
                 }
             }

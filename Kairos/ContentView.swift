@@ -9,20 +9,38 @@ import Foundation
 import SwiftUI
 import FirebaseAuth
 
+class AuthenticationState: ObservableObject {
+    @Published var isUserAuthenticated: Bool = false
+    private var handle: AuthStateDidChangeListenerHandle?
+
+    init() {
+        handle = Auth.auth().addStateDidChangeListener { [weak self] (_, user) in
+            DispatchQueue.main.async {
+                self?.isUserAuthenticated = user != nil
+            }
+        }
+    }
+
+    deinit {
+        if let handle = handle {
+            Auth.auth().removeStateDidChangeListener(handle)
+        }
+    }
+}
+
+// ContentView now listens to the authentication state
 struct ContentView: View {
     @ObservedObject private var userService = UserService.shared
+    @ObservedObject private var authState = AuthenticationState()
     @State private var currentDate = Date()
     @State private var showingSideMenu = false
     @State private var showingAddEventView = false
     let calendarManager = CalendarManager()
     @State private var selectedTab: Tab = .calendar
 
-    var isUserAuthenticated: Bool {
-        userService.currentUser != nil
-    }
-
     func signOut() {
         if userService.signOut() {
+            authState.isUserAuthenticated = false
             print("Sign out successful")
         } else {
             print("Sign out failed")
@@ -76,7 +94,9 @@ struct ContentView: View {
                 }
 
                 if showingSideMenu {
-                    SideMenuView(isShowing: $showingSideMenu, signOutAction: signOut)
+                    SideMenuView(isShowing: $showingSideMenu,
+                                 isUserAuthenticated: authState.isUserAuthenticated,
+                                 signOutAction: signOut)
                         .transition(.move(edge: .leading))
                 }
 
@@ -158,23 +178,25 @@ struct CustomTabBar: View {
 
 struct SideMenuView: View {
     @Binding var isShowing: Bool
-    @ObservedObject private var userService = UserService.shared
+    var isUserAuthenticated: Bool // Changed to non-binding Bool
     let signOutAction: () -> Void
     @State private var activeSheet: ActiveSheet?
 
     var body: some View {
         VStack(alignment: .leading) {
             Button("Profile") {
-                // Action for Profile
+                if isUserAuthenticated {
+                    activeSheet = .account
+                }
             }
             Button("Account") {
-                activeSheet = userService.currentUser != nil ? .account : .signInOptions
+                activeSheet = isUserAuthenticated ? .account : .signInOptions
             }
             Button("Privacy") {
-                // Action for Privacy
+                // Action for Privacy remains the same.
             }
             Button("Premium") {
-                // Action for Premium
+                // Action for Premium remains the same.
             }
         }
         .frame(maxWidth: 250)
@@ -185,7 +207,7 @@ struct SideMenuView: View {
         .sheet(item: $activeSheet) { item in
             switch item {
             case .account:
-                AccountView(userService: userService)
+                AccountView(userService: UserService.shared)
             case .signInOptions:
                 SignInOptionsView(hasCompletedOnboarding: .constant(false))
             }
@@ -200,13 +222,14 @@ struct AccountView: View {
         VStack {
             if let user = userService.currentUser {
                 Text("Username: \(user.id)")
-                Text("Account: \(user.account ?? "Not available")")
+                Text("Account: \(user.account ?? "Email not available")")
                 Button("Sign Out") {
                     if userService.signOut() {
-                        // Handle additional sign-out logic or UI feedback as needed.
                         print("Sign out successful")
                     }
                 }
+            } else {
+                Text("No user data available.")
             }
         }
     }
